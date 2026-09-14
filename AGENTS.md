@@ -47,10 +47,6 @@ bun run format && bun run lint && bun run lint:css && bun run test && bun run bu
    `debug-sandbox.html` build only under `DEBUG=1 bun run build`. Add a debug
    artifact to `DEBUG_ENTRY_FILES` in `src/build/build-entries.ts`; never as an
    unconditional `rollupOptions.input` entry.
-7. **Debug pages are opt-in and fail closed.** `exercise-showcase.html` and
-   `debug-sandbox.html` build only under `DEBUG=1 bun run build`. Add a debug
-   artifact to `DEBUG_ENTRY_FILES` in `src/build/build-entries.ts`; never as an
-   unconditional `rollupOptions.input` entry.
 
 ## Content rules
 
