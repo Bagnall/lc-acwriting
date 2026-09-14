@@ -110,9 +110,6 @@ Do not fork a second copy of it.
 - **The markdown docs are the single source; the sandbox RENDERS them** (spec
   §14). Never copy prose into `src/sandbox/` — `src/build/docs-markdown.ts` reads
   the real `.md` files. If the hub should show something, put it in the doc.
-- **The markdown docs are the single source; the sandbox RENDERS them** (spec
-  §14). Never copy prose into `src/sandbox/` — `src/build/docs-markdown.ts` reads
-  the real `.md` files. If the hub should show something, put it in the doc.
 - When a doc and the code disagree, **the code is the truth** — fix the doc and
   say so.
 
