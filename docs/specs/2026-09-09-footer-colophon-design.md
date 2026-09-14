@@ -518,8 +518,12 @@ Three items found while reading, not in the §D handover:
   "Follow us", "Back to top" and the new-tab cue. If that edge is closed, all of them move
   into `ui-strings.ts` in **one** contract change, not two. Out of scope for this
   document.
-- **[R2]** The `no-preference` motion shape (§4.6) is a candidate repo-wide change across
-  `home.css`, `shell.css` and `footer.css`. Also out of scope, recorded so it is not lost.
+- **[R2]** The `no-preference` motion shape (§4.6) was a candidate repo-wide change.
+  **Rejected and closed 2026-09-14 (§D · D3).** Its only advantage is on a user agent
+  that does not support the query, and none is in the build target; the sweep was also
+  seven files rather than the three recorded here, two of which use `reduce` to switch
+  rendering strategy rather than to suppress motion. The `reduce` override shape chosen
+  in §4.6 is now the settled repo idiom, not an interim one.
 
 ## 9. Commit sequence
 

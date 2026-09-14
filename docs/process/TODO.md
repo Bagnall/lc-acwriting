@@ -317,7 +317,7 @@ file as its home), `STRUCTURE.md`'s `src/sandbox/` row, README's build section,
 CONTRIBUTING's command table, `AGENTS.md`'s two new house rules, `docs/TOOLING.md`'s two
 new decision entries.
 
-## D. Design & accessibility polish — 3 of 8 open
+## D. Design & accessibility polish — 2 of 8 open
 
 Design and a11y come before branch protection **by decision 2026-09-09**: a footer that
 ships internal build chatter and two dead links is a defect on every page of a live
@@ -526,10 +526,43 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
     plain CSS in `@layer`. Pick one direction.
   - **The landing page reads sparse at 1440 with one LO** — hero, then a single card in
     a wide grid. Design work, not a defect.
-- **D3 — the `no-preference` motion sweep.** Candidate, not agreed. `home.css`,
-  `shell.css` and `footer.css` all use the `reduce` override shape; the
-  `no-preference` opt-in fails closed on a user agent without the query. One commit
-  across all three files, or none — a mixed idiom is worse than either.
+- **D3 — the `no-preference` motion sweep. REJECTED, closed 2026-09-14.** The repo uses
+  the `reduce` override shape — motion in the base state, `transition: none` under
+  `@media (prefers-reduced-motion: reduce)` — and it stays that way. The candidate was
+  the mirror image: no motion in base, added back under
+  `@media (prefers-reduced-motion: no-preference)`. Both are correct on a browser that
+  supports the query; they differ only on one that does not, where the `reduce` shape
+  ignores the override and animates at a reader who asked for stillness, while
+  `no-preference` ignores the opt-in and animates at nobody. That is the whole case for
+  the sweep, and it is the reason the footer spec (§4.6, [R2]) called `no-preference`
+  "strictly safer".
+
+  **That browser is not in this repo's support floor, and the floor is checkable rather
+  than remembered.** `package.json` declares no `browserslist`, so Vite 8's default
+  target applies: `chrome111`, `edge111`, `firefox114`, `safari16.4`, `ios16.4`
+  (`ESBUILD_BASELINE_WIDELY_AVAILABLE_TARGET`). `prefers-reduced-motion` shipped in
+  Chrome 74, Edge 79, Firefox 63 and Safari 10.1 — every browser we build for is more
+  than thirty versions past it. The population the safer shape protects is empty, and
+  the day it stops being empty is the day the build target moves, which is a deliberate
+  edit to `vite.config.ts` and the right place to reopen this.
+
+  **The cost was also understated twice over.** The row said three files; there are
+  **seven**: `index.css:148`, `shell.css:58`, `footer.css:360`, `back-to-top.css:186`,
+  `home.css:480`, `memory-match.css:190`, `flashcards.css:191`. `back-to-top.css`
+  arrived with §D4 after this row was written; the two exercise files were always there
+  and were simply missed. And two of the seven are not a transition sweep at all — the
+  flip-card engines use `reduce` to switch RENDERING STRATEGY, not to slow motion down.
+  `flashcards.css` and `memory-match.css` drop the 3D transform and `display: none` the
+  hidden face, cross-fading through the state attribute instead (both file headers say
+  so). Inverting those means the base state becomes the non-3D fallback and
+  `no-preference` carries the entire flip — a restructure of two engines, not a moved
+  declaration.
+
+  **Zero → zero benefit against seven files, two of them structural. Not worth it.** The
+  "one commit or none" constraint still holds and is the reason this closes as a
+  decision rather than drifting half-done: a mixed idiom is worse than either shape used
+  consistently. `footer.css`'s own comment carried the promise of this sweep and now
+  carries the decision instead.
 
 - **D7 — the landing page's left rail. DONE 2026-09-14.** The header's "Lessons"
   button — which sat BEFORE the course title and read as though it were the page's

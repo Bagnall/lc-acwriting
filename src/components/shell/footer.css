@@ -349,10 +349,17 @@
   }
 
   /* --- Reduced motion ---------------------------------------------------
-     The `reduce` override shape, matching home.css and shell.css. The
-     `no-preference` opt-in is safer (it fails closed on a user agent without the
-     query) but introducing a second motion idiom in one new file is worse than
-     either used consistently — that sweep is logged as §D · D3.
+     The `reduce` override shape, matching the other six stylesheets that carry a
+     motion block. The mirror shape — no motion in base, added back under
+     `no-preference` — is safer in the abstract, because it fails closed on a user
+     agent that does not support the query. No such agent is in this repo's support
+     floor: no `browserslist` is declared, so Vite's default target applies
+     (chrome111 / edge111 / firefox114 / safari16.4 / ios16.4) and every one of those
+     is dozens of versions past shipping `prefers-reduced-motion`. The repo-wide
+     sweep to `no-preference` was therefore REJECTED and §D · D3 is CLOSED — see the
+     TODO for the full reasoning, including why flashcards and memory-match could not
+     have been swept by moving a declaration anyway. Do not reintroduce the opt-in
+     shape here on its own; a mixed idiom is worse than either used consistently.
 
      Note this is the OPPOSITE of the reference, which ADDS declarations inside
      `reduce` (narrowing a transition from 180ms to 120ms). Motion does not belong
