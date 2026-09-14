@@ -99,7 +99,6 @@ Do not fork a second copy of it.
 - [Conventional Commits](https://www.conventionalcommits.org/):
   `feat` · `fix` · `refactor` · `docs` · `test` · `chore` · `perf` · `ci`.
 - **One concern per commit.**
-- **No `Co-Authored-By` trailers** — attribution is disabled for this repo.
 - Prose docs are not exempt from the gate: Prettier formats markdown and CI runs
   `format:check`.
 
