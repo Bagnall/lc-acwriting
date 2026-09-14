@@ -317,7 +317,7 @@ file as its home), `STRUCTURE.md`'s `src/sandbox/` row, README's build section,
 CONTRIBUTING's command table, `AGENTS.md`'s two new house rules, `docs/TOOLING.md`'s two
 new decision entries.
 
-## D. Design & accessibility polish — 3 of 6 open
+## D. Design & accessibility polish — 4 of 7 open
 
 Design and a11y come before branch protection **by decision 2026-09-09**: a footer that
 ships internal build chatter and two dead links is a defect on every page of a live
@@ -519,6 +519,61 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   `shell.css` and `footer.css` all use the `reduce` override shape; the
   `no-preference` opt-in fails closed on a user agent without the query. One commit
   across all three files, or none — a mixed idiom is worse than either.
+
+- **D7 — the landing page's left rail (NEW, 2026-09-14, agreed, unspecced).** Replace
+  the landing page's "Lessons" button — which currently sits BEFORE the course title
+  in the header and reads wrong there — with a thin icon rail pinned to the left edge,
+  permanently visible, expanding to a full panel. Matches french-lo-1's landing page.
+
+  **It IS in the reference, and that was checked rather than assumed.** The rail could
+  easily have been the host site's chrome (the screenshot is
+  `lcitc.langcen.cam.ac.uk/french/french-basic/`, a page with its own furniture), which
+  would have made this a design invention rather than a port. It is not:
+  `src/components/layout/page-shell/LandingPage/LandingPage.jsx` imports `Sidebar`,
+  `SidebarProvider`, `SidebarTrigger` and friends from shadcn, plus `SOCIAL_LINKS`.
+  What it uses is the sidebar's `collapsible="icon"` mode.
+
+  **The primitive is already vendored here**: `src/components/ui/sidebar.tsx`. It is one
+  of the seven shadcn wrappers with ZERO importers (see §D5), so it costs nothing today
+  and would start costing the moment this job imports it.
+
+  **Scope — what it touches**
+  - `CourseHome` wraps in `SidebarProvider`, rail as a sibling of the content.
+  - `LessonSideNav` is REPLACED, not joined. It already owns focus-move-in, a Tab trap,
+    `inert` when closed, Escape and focus restore, and a scroll lock. Two overlapping
+    nav mechanisms on one page is worse than either alone, and whatever replaces it
+    must carry that same behaviour across — it is the most accessible component in the
+    repo and the bar, not the baseline.
+  - The header's "Lessons" button goes, on the landing page.
+
+  **Three risks, each capable of eating the job**
+  1. **Prerender/hydration parity is a HARD repo constraint** (§3 of the post-phase-D
+     handover): prerendered markup must equal the first client render. shadcn's sidebar
+     persists open/closed in a COOKIE and reads it on mount — precisely the shape that
+     produces a mismatch. Decide the SSR story before writing the component, not after
+     seeing a hydration warning.
+  2. **D5 is already breached and this makes it worse.** `main-*.js` is 96.6 kB gzipped
+     against < 80 kB. Importing `sidebar.tsx` pulls Base UI surface onto the landing
+     page — the page most likely to be a reader's first. Measure before and after; if
+     it moves the number materially, that is an argument for a hand-rolled rail rather
+     than the shadcn component.
+  3. **Mobile.** shadcn's sidebar becomes a Sheet below its breakpoint — a second Base
+     UI dialog, and a SECOND mobile nav pattern beside the header's. Decide whether the
+     rail exists at all below `sm` rather than inheriting an answer.
+
+  **Two decisions the job must make, not inherit**
+  - **Landing page only, or LO pages too?** French's rail is on the landing page; its
+    LO pages use the top nav. Defaulting to both would be a choice nobody made.
+  - **Do the social links go in the rail?** French puts them there. This repo already
+    ships them in the FOOTER from `footer.config.ts`. The same links in two places is a
+    decision with a maintenance cost, not a freebie — and `footer.config.ts` is the one
+    source, so the rail must read from it rather than declaring its own list.
+
+  **Verify:** both themes; 320 / 375 / 768 / 1024 / 1440 with no overflow; keyboard
+  reachable in natural tab order with focus visible; the rail's controls named; bundle
+  measured before and after; and the prerendered landing page byte-compared against the
+  first client render. Guard h renders `CourseHome` among its 26 documents, so landmark
+  and heading-order changes surface there.
 
 ---
 
