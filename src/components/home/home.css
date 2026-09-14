@@ -226,6 +226,13 @@
      backdrop (40) and the panel (50), which is how the social stack hides itself when
      the panel opens over it, with no rule saying so. */
   .lesson-rail {
+    /* Declared on the rail, not on each control: the menu toggle, the social links and
+       the theme button must agree on these two numbers, and a second literal anywhere
+       is how they stop agreeing. 2rem/1.25rem mirrors the `size-5` glyph in a `2rem`
+       button that `.lesson-rail-toggle` sets in markup. */
+    --lesson-rail-control-size: 2rem;
+    --lesson-rail-glyph-size: 1.25rem;
+
     position: fixed;
     inset-block: 0;
     inset-inline-start: 0;
@@ -248,8 +255,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: var(--lesson-rail-control-size);
+    height: var(--lesson-rail-control-size);
     border-radius: var(--radius);
     color: var(--foreground);
 
@@ -278,8 +285,6 @@
      pushes the icons off a short viewport, whereas centring in the leftover space
      degrades to "as far down as there is room for". */
   .lesson-rail-social {
-    --lesson-rail-social-size: 1.75rem;
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -287,13 +292,24 @@
     margin-block: auto;
   }
 
-  /* THE BOX IS THE ICON, matching `.footer-social-link` — and for the same reason:
-     1.75rem is 28px, so the target clears WCAG 2.2 SC 2.5.8 (24x24) without padding
-     that would make the ink sit inside the box. */
+  /* ONE BOX AND ONE INK SIZE FOR EVERY CONTROL IN THE RAIL — 2rem/32px box, 1.25rem/20px
+     glyph, matching `.lesson-rail-toggle` above and the theme button below it.
+
+     This rule used to say "THE BOX IS THE ICON", copied from `.footer-social-link`,
+     where the marks and the social row flush-align along one edge and any padding
+     inside the box reads as a misalignment. The rail is the opposite arrangement: a
+     vertical stack whose other members are inset glyphs, so a flush 28px mark rendered
+     40% larger than its neighbours. The footer's reasoning is right for the footer and
+     was the wrong convention to import.
+
+     The target grows rather than shrinks — 32px, comfortably past WCAG 2.2 SC 2.5.8's
+     24x24 — so the smaller ink costs nothing in hit area. */
   .lesson-rail-social-link {
     display: inline-flex;
-    width: var(--lesson-rail-social-size);
-    height: var(--lesson-rail-social-size);
+    align-items: center;
+    justify-content: center;
+    width: var(--lesson-rail-control-size);
+    height: var(--lesson-rail-control-size);
     border-radius: var(--radius);
     color: var(--muted-foreground);
     opacity: 0.82;
@@ -308,8 +324,8 @@
 
   .lesson-rail-social-icon {
     display: block;
-    width: 100%;
-    height: 100%;
+    width: var(--lesson-rail-glyph-size);
+    height: var(--lesson-rail-glyph-size);
   }
 
   /* After both base rules, not before: a `:hover` (0,2,0) declared ahead of the plain
