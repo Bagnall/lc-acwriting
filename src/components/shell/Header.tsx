@@ -23,7 +23,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { Menu } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { courseConfig } from '@/config/course.config';
 import { resolveAsset, resolveHomeHref } from '@/lib/assets';
 import type { NavSection } from './nav-section';
@@ -132,12 +132,13 @@ export default function Header({
 
               Sized by height with width auto, so a replacement mark of any square-ish
               ratio sits on the title's cap height without the header re-flowing.
-              public/logo.svg documents what a replacement must keep. */}
-          <img
-            src={resolveAsset(courseConfig.logo)}
-            alt=""
+              Masked, not <img>: `currentColor` inside an <img>-loaded SVG resolves
+              against that file's own document and comes out black in both themes.
+              See the .course-mark rule in shell.css. */}
+          <span
+            className="course-mark size-6"
+            style={{ '--course-mark': `url(${resolveAsset(courseConfig.logo)})` } as CSSProperties}
             aria-hidden="true"
-            className="h-6 w-auto shrink-0"
           />
           {siteTitle}
         </a>

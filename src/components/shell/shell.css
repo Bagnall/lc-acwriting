@@ -5,6 +5,33 @@
  * @layer components so Tailwind utilities can still override where needed.
  */
 @layer components {
+  /* THE COURSE MARK IS A MASK, NOT AN IMAGE, and the reason is a trap worth naming.
+     An SVG loaded through <img src> is a separate document: `currentColor` inside it
+     resolves against THAT document's colour, which defaults to black, not against the
+     page's. So a `currentColor` mark shipped as <img> renders black in both themes and
+     is invisible on a dark header — which is exactly what shipped in e4b10b4.
+
+     Masking paints `currentColor` THROUGH the file's shape, so the mark takes the
+     header's text colour in both themes from one file. The cost is that it renders as
+     a SILHOUETTE: any fill, stroke or gradient inside the file is ignored. For a
+     monochrome mark that is free. A full-colour logo needs the footer's pattern
+     instead — a light/dark pair with `dark:hidden` (see FooterMarks.tsx).
+
+     The URL arrives as `--course-mark`, set inline from `courseConfig.logo` through
+     resolveAsset(), because the path is config and cannot be written here. */
+  .course-mark {
+    display: inline-block;
+    flex: none;
+    background-color: currentcolor;
+
+    /* Unprefixed only — stylelint bans vendor prefixes here and the build adds what
+       the browser targets need. Unprefixed `mask-*` is Safari 15.4+. */
+    mask-image: var(--course-mark);
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+
   /* Skip-to-main link: always in the DOM, visually hidden until it receives
      keyboard focus, then it slides into the top-left corner (spec §1). */
   .skip-link {

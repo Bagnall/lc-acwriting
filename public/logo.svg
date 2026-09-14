@@ -13,15 +13,20 @@
     THIS IS A PLACEHOLDER. Replace it with the real course mark when cloning the
     template. Three things to preserve when you do, because the header relies on them:
 
-      1. `fill="currentColor"` — NO hardcoded colour anywhere. The mark inherits the
-         header's text colour, so it works in both themes and needs no second file
-         and no token. A mark with its own hex will look wrong in one theme.
+      1. SHAPE ONLY — the mark is painted as a SILHOUETTE. The header masks this file
+         and tints it with `currentColor`, so it takes the header's text colour in
+         both themes from one file. Every fill, stroke, opacity and gradient in here
+         is therefore IGNORED at render; only the outline of the artwork survives.
+         Do not spend time colouring a replacement. If the course's real mark must be
+         full-colour, it needs the footer's pattern instead — a light/dark pair with
+         `dark:hidden` (see src/components/shell/FooterMarks.tsx) — which is a code
+         change, not a file swap.
       2. A SQUARE viewBox. The header sizes the mark by height and lets width follow;
          a non-square box will not be cropped, but it will not sit on the title's cap
          height either.
-      3. `role="presentation"` + `aria-hidden="true"`. The brand link already carries
-         the course title as its accessible name, so announcing the mark as well
-         would say the same thing twice.
+      3. `role="presentation"` + `aria-hidden="true"`. Harmless belt-and-braces: a
+         masked file is never in the accessibility tree anyway, but keep them so the
+         file is also safe to drop into an <img> somewhere else.
 
     Speech bubbles because the template ships as a language course. Nothing in the
     code depends on the shape — only on the three rules above.

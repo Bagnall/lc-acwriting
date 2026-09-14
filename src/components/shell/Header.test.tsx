@@ -109,13 +109,17 @@ describe('Header', () => {
 
     // Decorative: the link already has the course title as its accessible name, so
     // the mark must not be announced as well.
-    expect(html).toMatch(/<img[^>]*alt=""/);
-    expect(html).toMatch(/<img[^>]*aria-hidden="true"/);
+    expect(html).toMatch(/<span[^>]*course-mark[^>]*aria-hidden="true"/);
+    // MASKED, never <img>. `currentColor` inside an <img>-loaded SVG resolves against
+    // that file's own document and renders black in BOTH themes — invisible on the
+    // dark header, which is the bug this replaced. An <img> reappearing here is that
+    // bug coming back.
+    expect(html).not.toMatch(/<a[^>]*>[^<]*<img/);
+    expect(html).toContain('--course-mark:url(/logo.svg)');
     // Through resolveAsset: a bare `logo.svg` resolves against the CURRENT page URL,
-    // which breaks on an LO page under a sub-path base. The leading slash is the
-    // only visible proof it was resolved at all.
-    expect(html).toContain('src="/logo.svg"');
-    expect(html).not.toContain('src="logo.svg"');
+    // which breaks on an LO page under a sub-path base. The leading slash is the only
+    // visible proof it was resolved at all.
+    expect(html).not.toContain('url(logo.svg)');
   });
 
   test('renders an optional theme-toggle slot inside the nav', () => {
