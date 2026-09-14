@@ -681,9 +681,34 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   `.footer-social-link` 35,40,48 → 236,238,241 (was stuck); `.audio-container`
   84,96,114 → 181,189,200; `.back-to-top` border 100,153,148 → 181,235,225; `.lo-card`
   border 181,189,200 → 255,255,255; `.back-to-top` background invariant as intended.
-  Footer social contrast 13.07:1 light, 8.71:1 dark. **The four exercise-token rules
-  are fixed by the same proven rule but NOT verified live** — they render only on the
-  exercise showcase, which is opt-in per build.
+  Footer social contrast 13.07:1 light, 8.71:1 dark.
+
+  **The remaining five are now verified too (2026-09-14), and the earlier note here
+  undercounted them.** It said "the four exercise-token rules"; `.memory-card-back` is a
+  fifth, and it is not a token rule. They render only on `exercise-showcase.html`, which
+  is opt-in, so `DEBUG=1 bun run build` was needed to reach them. Measured on that page
+  with `body` and `h1` as controls, all five switch:
+
+  | rule                       | light       | dark       |
+  | -------------------------- | ----------- | ---------- |
+  | `.drag-fill-gaps-tile` bg  | 255,255,255 | 61,66,73   |
+  | `.drag-fill-gaps-slot` bg  | 255,255,255 | 61,66,73   |
+  | `.phrase-reorder-token` bg | 255,255,255 | 61,66,73   |
+  | `.word-order-token` bg     | 255,255,255 | 61,66,73   |
+  | `.memory-card-back` bg     | 179,191,195 | 86,112,113 |
+
+  All four token borders move 181,189,200 → white as well. One honest limitation of the
+  probe: `--border` in dark is a `color-mix()` carrying alpha, and painting it on a 1x1
+  canvas and reading three channels drops that alpha — so the dark border figure is the
+  colour component, not the composited appearance. The value CHANGING is what this test
+  is for, and it changes.
+
+  **The symptom this bug had, for whoever meets it again:** it only shows on a theme
+  toggle WHILE an exercise is on screen. A fresh load in dark is fine — the element gets
+  the dark value with no transition running to strand it. Toggle mid-exercise and the
+  tiles, chips and card backs kept their light surfaces while their text correctly went
+  light: near-white chips on a dark page. One gesture reaches it, which is probably why
+  it survived this long.
 
 ---
 
