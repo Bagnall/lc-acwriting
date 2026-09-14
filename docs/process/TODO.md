@@ -9,7 +9,7 @@ session, on either machine.
 | `LC_BASE_TEMPLATE_BUILD_HANDOVER.md`  | the numbered buildlist + tick history (steps 1–34)         |
 | `2026-08-06-post-phase-d-handover.md` | state snapshot at end of Phase D, plus the §5 decision log |
 
-**Last updated:** 2026-09-14 · **HEAD:** see `git log` · **Suite:** 99 files · 1003 tests green
+**Last updated:** 2026-09-14 · **HEAD:** see `git log` · **Suite:** 99 files · 1007 tests green
 · CI green · `main` unprotected by decision (job E1).
 
 Non-negotiable constraints for every job below live in
@@ -409,6 +409,16 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   `main-*.js` 298.27 kB raw / **96.61 kB gzipped** (< 80 kB), CSS 120.77 kB raw /
   **20.36 kB gzipped** (< 15 kB).
 
+  **Re-measured 2026-09-14 at `f7afa0f`, after the whole §D7 rail programme:**
+  `main-*.js` **97.08 kB gzipped**, CSS **20.65 kB**. Seven commits — the rail, the
+  removed top bar, `ThemeToggleButton`, the icon swap and the colour-transition sweep —
+  cost **+0.47 kB of JS and +0.33 kB of CSS between them**, so neither breach moved
+  materially and neither is closed. The number that matters here is the one NOT spent:
+  importing the vendored `src/components/ui/sidebar.tsx` instead of hand-rolling would
+  have cost **+21.06 kB gzipped on its own** (96.83 → 117.89), because of its fan-out
+  into Sheet, Tooltip, Button, Input, Separator and Skeleton. That measurement is what
+  chose the approach. `sidebar.tsx` still has ZERO importers.
+
   | share | module                 |
   | ----- | ---------------------- |
   | 55.6% | `react-dom`            |
@@ -486,14 +496,15 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
 - **D6 — nav + landing-page polish.** The half cut out of D2, still with no spec.
   Surveyed 2026-09-10, so these are found, not speculative:
   - **Two navs differ CORRECTLY — this row was a false alarm. Closed 2026-09-14.**
-    It read "two navs hold different a11y standards": `LessonSideNav` has
+    It read "two navs hold different a11y standards": `LessonSideNav` (now
+    `LessonRail`, §D7) has
     focus-move-in, a Tab trap, `inert` when closed, Escape + focus restore, while
     `Header`'s mobile panel has Escape and `hidden` only. True, and not a defect —
-    the survey compared a DIALOG with a DISCLOSURE. `LessonSideNav` is a slide-over
+    the survey compared a DIALOG with a DISCLOSURE. That panel is a slide-over
     that covers the page and scroll-locks it, so a trap is right. `Header`'s panel is
     an in-flow `<div>` after the toggle with no backdrop and nothing inert behind it,
     so a trap would STRAND a keyboard user who can see, and legitimately wants to
-    reach, the page behind. `hidden` also beats `inert` here: `LessonSideNav` needs
+    reach, the page behind. `hidden` also beats `inert` here: the slide-over needs
     `inert` only because `display: none` cannot animate its slide, and this panel does
     not animate. **Fix was documentation, not code** — the panel now carries the
     reasoning so the next reader does not re-derive it, plus tests pinning the
@@ -594,12 +605,85 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   exactly one lesson — with several, the panel's last link is LOn and the grid's first is
   LO1. Suite 1003 → 1007.
 
+  **WAVE pass, same day — what it caught and what it was wrong about.** Re-scanned after
+  the bar came off: 0 errors, 0 contrast errors. Of the three alerts, two were real and
+  one is not.
+  - **Both "possible heading" alerts cleared.** The course title's went with the bar.
+    The hero subheading's survived the `<hgroup>`, because that check is a STYLING
+    heuristic — short text set larger than body copy — and never looks at the ancestor
+    that says what the element is. Dropping `.home-hero-subheading` from `1.125rem` to
+    `1rem` cleared it (`2c2b0ed`), confirmed by re-scan. Promoting it to a real heading
+    was REJECTED and the reasoning is in the CSS so it is not reopened: it introduces no
+    section, and every heading is a promise to a reader navigating by heading that
+    content follows; it would also have to be a second `<h2>` claiming peerage with
+    "Lessons", which guard h's heading-order check would fail.
+  - **"Redundant link" is NOT a defect and is deliberately unfixed.** It is the rail
+    panel's lesson link and the card's link to the same LO, adjacent in link order only
+    because the demo course has exactly ONE lesson. With several, the panel's last link
+    is LOn and the grid's first is LO1. It also predates the rail — `LessonSideNav` sat
+    in the same place with the same links. Removing it means dropping either the panel's
+    list or the card grid.
+
+  **Icon and sizing corrections (`093bb6d`, `f7afa0f`).** The toggle's hamburger became
+  lucide's `panel-left`, matching the reference's `SidebarTrigger`: a hamburger is the
+  convention for a menu that drops or slides OVER the page, and this opens a panel
+  pinned to an edge. The accessible name stays "Lessons" rather than the reference's
+  "Toggle Sidebar" — that names what the panel contains, not the widget it is built
+  from. Separately, the social marks were rendering 40% larger than their neighbours
+  (28px box with the svg at `100%`, against 32px boxes holding 20px glyphs) because the
+  rule had imported `.footer-social-link`'s "THE BOX IS THE ICON" reasoning, which is
+  right in the FOOTER — marks flush-aligned in a row — and wrong in a vertical stack of
+  inset glyphs. All three rail controls now share one 2rem box and one 1.25rem glyph
+  held in custom properties on `.lesson-rail`; the target GREW to 32px, so SC 2.5.8 has
+  more headroom than before, not less.
+
+  **A repo-wide defect found from this work, fixed separately (`185c9de`).** See the
+  entry below it: nine rules across eight files transitioned a colour declared in their
+  base state from a token, which strands the computed value on the previous theme.
+
   **Verified:** both themes; 320 / 375 / 768 / 1024 / 1440 with no overflow and the rail
   48px at x=0 in every one; prerender parity as above; Escape closes and restores focus
   to the toggle; focus moves into the panel on open; Tab wraps last→first; scroll lock
   on and off; `inert` keeps the closed panel's links out of the interactive tree;
   targets 32px (toggle) and 28px (social), both clearing WCAG 2.2 SC 2.5.8's 24x24.
   Suite 995 → 1003. Guard h green across its 26 documents.
+
+- **D8 — NEVER TRANSITION A TOKEN COLOUR DECLARED IN A BASE STATE. Closed 2026-09-14,
+  `185c9de`.** A property that is declared in a rule's BASE state from a `var(--token)`
+  AND named in that rule's `transition` never lands on the new value when the theme
+  swaps the token: in Chrome the computed value stays pinned to the previous theme's
+  colour indefinitely. The dark footer was rendering its social icons in the LIGHT
+  theme's colour because of it, unnoticed.
+
+  Isolated rather than guessed — `el.style.transition = 'none'` makes a stuck element
+  snap immediately to the correct value. Nine rules across eight files: `.footer-social-link`,
+  `.audio-container`, `.back-to-top` (border only), `.lo-card`, `.memory-card-back`,
+  `.drag-fill-gaps-tile`, `.drag-fill-gaps-slot`, `.phrase-reorder-token`,
+  `.word-order-token`.
+
+  **The sweep needs two things a naive one misses**, both of which hid a real hit:
+  group declarations BY SELECTOR rather than by rule (`.footer-social-link`'s
+  `transition` is on a rule it shares with `.footer-mark`, its `color` is on its own
+  rule 40 lines later), and treat the `border` shorthand as declaring `border-color`
+  (`.lo-card`).
+
+  **One hit is a legitimate false positive and must stay:** `.back-to-top` keeps its
+  `background-color` transition, because `--accent` is `var(--cam-blue)` in BOTH token
+  blocks and so has no second value to strand on. Its BORDER was the real bug — the
+  rule's own comment says it should "darken on the light page and lighten on the dark
+  one", which the transition was silently preventing.
+
+  A hover-only token colour is safe; the base-state declaration is what strands. This
+  also happens to be the repo's own rule that motion stays on compositor-friendly
+  properties, so there was never a reason to transition these.
+
+  **Verified** with `body` and `h1` as controls, colours painted on a 1x1 canvas:
+  `.footer-social-link` 35,40,48 → 236,238,241 (was stuck); `.audio-container`
+  84,96,114 → 181,189,200; `.back-to-top` border 100,153,148 → 181,235,225; `.lo-card`
+  border 181,189,200 → 255,255,255; `.back-to-top` background invariant as intended.
+  Footer social contrast 13.07:1 light, 8.71:1 dark. **The four exercise-token rules
+  are fixed by the same proven rule but NOT verified live** — they render only on the
+  exercise showcase, which is opt-in per build.
 
 ---
 
