@@ -68,7 +68,14 @@ test('a vocabulary term can carry a clip, rendered beside the word it belongs to
 
   // Inside the <dt>, not a column of its own: a control separated from the word it
   // plays is meaningless to anyone navigating by element.
-  expect(html).toMatch(/<dt[^>]*>[\s\S]*buenos días[\s\S]*<button[\s\S]*<\/dt>/);
+  expect(html).toMatch(/<dt[^>]*>[\s\S]*<button[\s\S]*<\/dt>/);
+  // And BEFORE the word, so every row shares one left edge to scan and click.
+  //
+  // Compared by POSITION, not by a `<button>.*term` pattern: the term also appears
+  // inside the button's own aria-label ("Listen: buenos días"), so such a pattern
+  // matches whichever order the markup is in — verified, it did. The last occurrence
+  // of the term is the visible text; if it falls after </button> the clip came first.
+  expect(html.indexOf('</button>')).toBeLessThan(html.lastIndexOf('buenos días'));
   // Named by the term. "Play" alone would be identical on every row of the list.
   expect(html).toContain('buenos días');
   expect(html).toMatch(/aria-label="[^"]*buenos días/);
