@@ -205,17 +205,24 @@
      rested at 0.82 and BRIGHTENED to 1, so the two rows of the same cluster behaved
      as opposites. Both now rest at 0.82 and brighten with a 2px lift.
 
-     `color` is in the shared transition but only the social links can use it — an
-     <img> mark cannot take currentColor, which is why the colour shift is declared
-     on the social rule alone rather than here. */
+     `color` USED TO BE in this shared transition, for the social links' benefit — an
+     <img> mark cannot take currentColor. It is gone, and nothing replaced it, because
+     transitioning a colour here was a CORRECTNESS bug rather than a nicety. A property declared in the BASE state from a token and
+     also named in a `transition` never lands on the new value when the theme swaps
+     that token — the computed value stays pinned to the previous theme's colour
+     indefinitely. Measured on /example.html against `body` and `h1` as controls. It
+     is also the repo's own rule that motion stays on compositor-friendly properties.
+     A hover-only token colour is safe; the base-state declaration is what strands.
+
+     The social icons were rendering the light theme's colour on the dark footer
+     because of it. */
   .footer-mark,
   .footer-social-link {
     border-radius: var(--radius);
     opacity: 0.82;
     transition:
       opacity 180ms ease,
-      transform 180ms ease,
-      color 180ms ease;
+      transform 180ms ease;
   }
 
   .footer-mark {

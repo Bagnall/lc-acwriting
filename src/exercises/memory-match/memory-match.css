@@ -93,9 +93,16 @@
     color: var(--primary-foreground);
     font-size: 2rem;
     font-weight: 700;
-    transition:
-      background-color 200ms ease,
-      box-shadow 200ms ease;
+
+    /* NO COLOUR PROPERTY IS TRANSITIONED HERE, and that is a correctness rule rather
+       than a performance one. A property that is declared in the BASE state from a
+       token and also named in a `transition` never lands on the new value when the
+       theme swaps that token: the computed value stays pinned to the previous theme's
+       colour indefinitely. Measured on /example.html against `body` and `h1` as
+       controls. It also happens to be the repo's own rule that motion stays on
+       compositor-friendly properties. A hover-only token colour is safe; the
+       base-state declaration is what strands. */
+    transition: box-shadow 200ms ease;
   }
 
   /* Hover affordance for a still-playable (face-down, enabled) card: a gentle

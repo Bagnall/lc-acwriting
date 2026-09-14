@@ -75,12 +75,25 @@
        read from the state being moved TO, so the two never compete.
 
        Leaving is quick because a control sliding away slowly is a distraction, while
-       arriving slowly reads as deliberate. 180ms stays on the hover properties. */
+       arriving slowly reads as deliberate. 180ms stays on the hover properties.
+
+       `border-color` IS NOT TRANSITIONED, though `background-color` still is, and the
+       difference is the point. A property declared in the BASE state from a token and
+       also named in a `transition` never lands on the new value when the theme swaps
+       that token — the computed value stays pinned to the previous theme's colour
+       indefinitely. Measured on /example.html against `body` and `h1` as controls. It
+       is also the repo's own rule that motion stays on compositor-friendly properties.
+       A hover-only token colour is safe; the base-state declaration is what strands.
+
+       The border here is
+       `color-mix(... var(--foreground))`, which the rule above says should darken on
+       the light page and lighten on the dark one — it was not doing that. The
+       background is `--accent`, which is `var(--cam-blue)` in BOTH token blocks, so it
+       has no second value to strand on and keeps its ease. */
     transition:
       opacity 3600ms ease,
       translate 3600ms ease,
       background-color 180ms ease,
-      border-color 180ms ease,
       transform 180ms ease;
   }
 

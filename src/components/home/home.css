@@ -77,9 +77,14 @@
     background-color: var(--card);
     color: var(--card-foreground);
     text-decoration: none;
+
+    /* `border-color` is NOT transitioned, for the reason the rail's rules give above:
+       the base state declares it from a token (`border: 1px solid var(--border)`, via
+       the shorthand — which is why the first sweep for this bug missed it), so naming
+       it here strands the computed value on the previous theme's colour when the theme
+       swaps. The hover border change still happens, just without the ease. */
     transition:
       transform 300ms ease,
-      border-color 300ms ease,
       box-shadow 300ms ease;
   }
 
