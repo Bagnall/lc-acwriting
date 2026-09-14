@@ -521,9 +521,36 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
 
   **This closes 89% of the CSS breach on its own** — 5.97 kB over budget becomes 0.67 kB
   over — by deleting files nothing imports. It is the cheapest 5 kB on this row by a
-  wide margin and it needs no spec, only a decision about whether the vendored wrappers
-  are kept as a shadcn convenience. Note what re-adding one costs: `shadcn add sidebar`
+  wide margin and it needs no spec. Note what re-adding one costs: `shadcn add sidebar`
   puts 5.30 kB of CSS back before a line of markup uses it.
+
+  ### D5 — DECISION 2026-09-14: the eleven wrappers stay
+
+  **The files are kept**, by the maintainer's decision on the day: `src/components/ui/`
+  is a vendored shadcn surface and having a wrapper already present is the convenience
+  it exists for. Deleting eleven of them to save 5.30 kB trades that away permanently
+  for a budget that is not currently gating a release.
+
+  **That trade turns out to be false, and the alternative is measured, not proposed.**
+  Tailwind v4 takes `@source not "…"`, which removes a path from the scan while leaving
+  the file on disk. Tested by adding one line per dead wrapper to `src/index.css` and
+  rebuilding: the output is **`main-CNLtVVlr.css`, 82.25 kB raw / 15.67 kB gzipped —
+  the same content hash as the delete experiment**, so it is not merely the same size,
+  it is byte-identical CSS. JS unchanged at 97.13 kB.
+
+  So all three properties hold at once: the wrappers stay where `shadcn` expects them,
+  the 5.30 kB does not ship, and re-enabling one is deleting a single line rather than
+  re-vendoring a component. **Nothing was applied** — `src/index.css` was restored and
+  the tree verified clean. This row records the option as measured and available, and
+  the call on whether to take it is open.
+
+  **Two things to know before taking it.** The negation list is a second place that
+  encodes which wrappers are unused, so it goes stale exactly like the seven-file count
+  in this row did — whoever applies it should decide whether a guard pins the list
+  against the real import graph, or whether a comment pointing here is enough. And the
+  saving is contingent on those files staying unused: the moment one is imported, its
+  `@source not` line silently strips utilities the live component needs, which fails as
+  missing styles rather than as an error.
 
   **One lead in the residual, NOT a recommendation.** `@font-face` is 13 faces / 2
   families — inside the two-family rule — but ten are Open Sans unicode-range subsets:
