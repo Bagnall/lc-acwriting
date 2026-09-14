@@ -104,6 +104,20 @@ describe('Header', () => {
     );
   });
 
+  test('brand link carries the course mark, decorative and through resolveAsset', () => {
+    const html = renderToStaticMarkup(<Header sections={SECTIONS} />);
+
+    // Decorative: the link already has the course title as its accessible name, so
+    // the mark must not be announced as well.
+    expect(html).toMatch(/<img[^>]*alt=""/);
+    expect(html).toMatch(/<img[^>]*aria-hidden="true"/);
+    // Through resolveAsset: a bare `logo.svg` resolves against the CURRENT page URL,
+    // which breaks on an LO page under a sub-path base. The leading slash is the
+    // only visible proof it was resolved at all.
+    expect(html).toContain('src="/logo.svg"');
+    expect(html).not.toContain('src="logo.svg"');
+  });
+
   test('renders an optional theme-toggle slot inside the nav', () => {
     const html = renderToStaticMarkup(
       <Header sections={SECTIONS} themeToggle={<span data-testid="toggle-slot" />} />,

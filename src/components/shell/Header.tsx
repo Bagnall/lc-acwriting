@@ -25,7 +25,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Menu } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { courseConfig } from '@/config/course.config';
-import { resolveHomeHref } from '@/lib/assets';
+import { resolveAsset, resolveHomeHref } from '@/lib/assets';
 import type { NavSection } from './nav-section';
 
 interface HeaderProps {
@@ -122,8 +122,23 @@ export default function Header({
             resolveHomeHref() so it survives a non-root base (anti-pattern #28). */}
         <a
           href={resolveHomeHref()}
-          className="mr-auto rounded-sm font-heading text-lg font-semibold tracking-tight text-foreground focus-visible:underline"
+          className="mr-auto flex items-center gap-2 rounded-sm font-heading text-lg font-semibold tracking-tight text-foreground focus-visible:underline"
         >
+          {/* The course's mark, named by `courseConfig.logo`. DECORATIVE: this link
+              already has the course title as its accessible name, so announcing the
+              mark too would say the same thing twice. `resolveAsset` because a bare
+              `logo.svg` resolves against the CURRENT page URL, which breaks on an LO
+              page under a sub-path base (anti-pattern #28).
+
+              Sized by height with width auto, so a replacement mark of any square-ish
+              ratio sits on the title's cap height without the header re-flowing.
+              public/logo.svg documents what a replacement must keep. */}
+          <img
+            src={resolveAsset(courseConfig.logo)}
+            alt=""
+            aria-hidden="true"
+            className="h-6 w-auto shrink-0"
+          />
           {siteTitle}
         </a>
 

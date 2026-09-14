@@ -28,6 +28,7 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { courseConfig } from '@/config/course.config';
 import { SHOWCASE_FIXTURES } from '@/showcase/fixtures';
 
 /**
@@ -42,8 +43,13 @@ import { SHOWCASE_FIXTURES } from '@/showcase/fixtures';
  * and the guard reports green having checked nothing — the precise staleness this
  * file's header warns about. Nothing else in `lo-config/` or the showcase fixtures
  * uses the key, so it collects exactly the paths intended.
+ *
+ * `logo` and `favicon` are the COURSE's own marks, and they arrive with the sweep
+ * over `course.config.ts` below. They were invisible to this guard until 2026-09-14,
+ * which is how `logo: 'logo.svg'` sat in the config pointing at a file that has never
+ * existed, read by nothing, for the life of the repo.
  */
-export const ASSET_KEYS = ['audio', 'image', 'src'] as const;
+export const ASSET_KEYS = ['audio', 'image', 'src', 'logo', 'favicon'] as const;
 
 /** Directory names never worth walking. */
 const SKIPPED_DIRS = ['node_modules', 'dist', '.git'] as const;
@@ -151,6 +157,20 @@ export function authoredAssetPaths(repoRoot: string): AuthoredAsset[] {
   for (const fixture of SHOWCASE_FIXTURES) {
     const source = `fixture:${fixture.id}`;
     for (const value of collectAssetPaths(fixture.config)) authored.push({ source, value });
+  }
+
+  // THE COURSE'S OWN MARKS, which were outside this sweep until 2026-09-14. Every
+  // other authored path in the repo was checked while `courseConfig.logo` pointed at
+  // a `logo.svg` that did not exist — required by the schema, read by no component,
+  // and so never once requested by a browser that could have 404'd and told someone.
+  // A guard that checks LO content but not the course's own identity leaves the most
+  // permanent paths in the repo the least checked.
+  //
+  // Imported, not read off disk: `course.config.ts` is TypeScript that `parse()`s
+  // itself at import, so the values here are the validated ones the app uses. There
+  // is no second reader to drift from.
+  for (const value of collectAssetPaths(courseConfig)) {
+    authored.push({ source: 'src/config/course.config.ts', value });
   }
 
   return authored;
