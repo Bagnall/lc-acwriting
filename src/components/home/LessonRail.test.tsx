@@ -75,25 +75,38 @@ describe('LessonRail', () => {
   });
 
   // The rail is the landing page's only chrome now, so the theme control lives in it.
-  // A fixed accessible name with the state on `aria-pressed` — NOT a label that flips
-  // between "Dark mode" and "Light mode", which spec §1 bans because a reader cannot
-  // tell whether such a name describes the state or the action.
-  test('carries the theme control, named once and stateful via aria-pressed', () => {
+  // `role="switch"` + `aria-checked` matches spec §1 and the LO page's ThemeToggle —
+  // and the name is the fixed string "Dark mode", NOT a label that flips to "Light
+  // mode", which §1 bans because a reader cannot tell whether such a name describes the
+  // state or the action.
+  test('carries the theme control as a named switch, not a label that flips', () => {
     const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
 
-    expect(html).toMatch(/<button[^>]*aria-pressed="false"[^>]*aria-label="Dark mode"/);
+    expect(html).toMatch(/<button[^>]*role="switch"/);
+    expect(html).toMatch(/<button[^>]*aria-label="Dark mode"/);
     expect(html).not.toContain('Light mode');
   });
 
   // Prerendered markup must equal the first client render, and `useTheme`'s server
   // snapshot is pinned to 'light' for exactly that reason. If this ever renders
-  // `aria-pressed="true"`, the server snapshot has been lost and dark-theme readers
+  // `aria-checked="true"`, the server snapshot has been lost and dark-theme readers
   // get a hydration mismatch.
   test('the theme control ships in its light-theme position, whatever the environment', () => {
     const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
 
-    expect(html).toContain('aria-pressed="false"');
-    expect(html).not.toContain('aria-pressed="true"');
+    expect(html).toContain('aria-checked="false"');
+    expect(html).not.toContain('aria-checked="true"');
+  });
+
+  // The thumb's resting position is CSS driven off aria-checked, so the icons must both
+  // be present and distinguishable in the static markup for that selector to have
+  // anything to act on.
+  test('the switch ships both icons, tagged so CSS can mark the selected one', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toContain('data-slot="light"');
+    expect(html).toContain('data-slot="dark"');
+    expect(html).toContain('lesson-rail-theme-thumb');
   });
 
   // The D7 decision that is worth a guard rather than a comment: the rail shows the

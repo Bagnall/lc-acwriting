@@ -342,6 +342,95 @@
     outline-offset: 2px;
   }
 
+  /* --- The theme switch in the rail (D7) ---------------------------------
+     A VERTICAL track with a sliding thumb: sun at the top, moon at the bottom. The
+     reference for this design is a horizontal pill ~64px across, and the rail is 48px,
+     so it is rotated rather than the rail widened — widening would cost 16px of content
+     column at every breakpoint, and 5% of the viewport at 320.
+
+     GEOMETRY IS DERIVED, NOT GUESSED. Travel = track - thumb - (2 x inset), so the
+     three numbers below are the only ones anyone has to keep in agreement, and the
+     thumb lands exactly on each icon's centre at both ends. */
+  .lesson-rail-theme {
+    --theme-track-height: 3.75rem;
+    --theme-thumb-size: 1.625rem;
+    --theme-inset: 0.1875rem;
+
+    /* The border is in the travel sum because `--theme-track-height` sizes the BORDER
+       box while `inset-block-*` resolve against the PADDING box. Leaving it out put the
+       thumb 2px past the moon — measured, not spotted by eye. */
+    --theme-border: 1px;
+
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+    width: var(--lesson-rail-control-size);
+    height: var(--theme-track-height);
+    border: var(--theme-border) solid var(--border);
+    border-radius: 999px;
+    background-color: var(--muted);
+    cursor: pointer;
+  }
+
+  .lesson-rail-theme:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .lesson-rail-theme-thumb {
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-start: var(--theme-inset);
+    width: var(--theme-thumb-size);
+    height: var(--theme-thumb-size);
+    border-radius: 50%;
+    background-color: var(--primary);
+
+    /* `transform` ONLY — the one property that may be animated here. A colour in this
+       list would strand on the previous theme when the tokens swap (§D8), and transform
+       is the compositor-friendly choice the repo's rules ask for anyway. The -50% on X
+       is the centring, so the Y half is what actually moves. */
+    transform: translate(-50%, 0);
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Travel: the track's PADDING box, minus the thumb, minus both insets. */
+  .lesson-rail-theme[aria-checked='true'] .lesson-rail-theme-thumb {
+    transform: translate(
+      -50%,
+      calc(
+        var(--theme-track-height) - (2 * var(--theme-border)) - var(--theme-thumb-size) -
+          (2 * var(--theme-inset))
+      )
+    );
+  }
+
+  /* Both icons sit ABOVE the thumb, so the one it has travelled to reads as selected.
+     Centred on the thumb's two resting positions by the same arithmetic. */
+  .lesson-rail-theme-icon {
+    position: absolute;
+    inset-inline-start: 50%;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-inline-start: -0.4375rem;
+    color: var(--muted-foreground);
+  }
+
+  .lesson-rail-theme-icon[data-slot='light'] {
+    inset-block-start: calc(var(--theme-inset) + (var(--theme-thumb-size) / 2) - 0.4375rem);
+  }
+
+  .lesson-rail-theme-icon[data-slot='dark'] {
+    inset-block-end: calc(var(--theme-inset) + (var(--theme-thumb-size) / 2) - 0.4375rem);
+  }
+
+  /* The selected icon takes the thumb's foreground. NOT transitioned, for the reason
+     given on the thumb — these are base-state token colours. */
+  .lesson-rail-theme[aria-checked='false'] .lesson-rail-theme-icon[data-slot='light'],
+  .lesson-rail-theme[aria-checked='true'] .lesson-rail-theme-icon[data-slot='dark'] {
+    color: var(--primary-foreground);
+  }
+
   /* --- Sliding lesson panel ----------------------------------------------
      The panel is FIXED, so it overlays the page from the viewport edge rather
      than pushing the layout around — including over the rail, which is how the
@@ -396,6 +485,7 @@
     .lo-card-cta-icon,
     .lesson-rail-toggle,
     .lesson-rail-social-link,
+    .lesson-rail-theme-thumb,
     .lesson-nav-panel,
     .lesson-nav-backdrop {
       transition: none;
