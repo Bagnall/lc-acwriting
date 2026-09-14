@@ -84,6 +84,24 @@ test('a vocabulary term can carry a clip, rendered beside the word it belongs to
   // proves the file behind `audio` exists, and AudioClip owns resolveAsset.
 });
 
+test('only a row with a clip offers the pointer and hover — no empty promise', () => {
+  const withAudio = renderBlock('vocabulary', {
+    items: [{ term: 'buenos días', gloss: 'good morning', audio: 'audio/x.m4a' }],
+  });
+  const without = renderBlock('vocabulary', {
+    items: [{ term: 'buenos días', gloss: 'good morning' }],
+  });
+
+  expect(withAudio).toContain('cursor-pointer');
+  // A pointer over a row that does nothing is a promise the page cannot keep.
+  expect(without).not.toContain('cursor-pointer');
+  // The row is a MOUSE affordance only: no role and no tabIndex, so it never enters
+  // the accessibility tree. The speaker <button> inside is the keyboard path, and
+  // giving the row a role too would tab-stop and announce every word twice.
+  expect(withAudio).not.toMatch(/<div[^>]*role="button"/);
+  expect(withAudio).not.toMatch(/<div[^>]*tabindex/i);
+});
+
 test('a vocabulary term without a clip renders no audio control at all', () => {
   const html = renderBlock('vocabulary', {
     items: [{ term: 'buenos días', gloss: 'good morning' }],
