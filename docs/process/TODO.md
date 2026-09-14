@@ -448,14 +448,95 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
     `sheet`, `separator`, `navigation-menu`, `badge`. With no importer Rollup should
     already exclude them, so deleting them is FILE HYGIENE, NOT BYTES. **Verify that
     before counting any saving from it** — the attribution above cannot tell you
-    whether a module was excluded or merely small.
+    whether a module was excluded or merely small. **Verified 2026-09-14, and it is
+    half right: free for JS, 5.30 kB gzipped for CSS. The count is also wrong — the
+    dead set is ELEVEN. See the CSS attribution below.**
 
-  **The CSS breach is still unmeasured.** Nothing above touches it. Do the equivalent
-  attribution before proposing anything there.
+  ### D5 — the CSS bundle, attributed (measured 2026-09-14 at `ffbe141`)
 
-  **Next step is a spec, not a patch.** The gap is ~17 kB gzipped, the options differ
-  in kind (defer the dialog / drop Base UI wrappers for native elements / hydrate
-  islands instead of the page), and picking between them is a design conversation.
+  The row above asked for the equivalent of the JS attribution and it is done. **This
+  one is better than the JS one**: Vite emits no `.css.map`, so the `sourcesContent`
+  trick does not transfer, but the built CSS is a flat list of top-level constructs that
+  can be split by brace depth and measured directly. These are OUTPUT bytes, not source
+  bytes — a real breakdown of the shipped file rather than a ranking.
+
+  Gzip does not decompose, so the third column is MARGINAL gzip: recompress the file
+  with that construct deleted, and subtract. It answers "what would removing this save",
+  which is the question worth asking, and the column therefore does not sum to the
+  total. Raw totals below are Vite's own reported figures; the internal marginal
+  numbers come from `gzip -9` and run ~1.2% under Vite's, so do not mix the two columns.
+
+  **As shipped: 124.33 kB raw / 20.97 kB gzipped, against a < 15 kB budget.**
+
+  | raw B  | marg. gz | n   | construct           |
+  | ------ | -------- | --- | ------------------- |
+  | 87,809 | 12,406   | 1   | `@layer utilities`  |
+  | 12,968 | 2,631    | 1   | `@layer components` |
+  | 8,882  | 1,759    | 1   | `@layer base`       |
+  | 5,221  | 1,771    | 13  | `@font-face`        |
+  | 4,995  | 547      | 79  | `@property`         |
+  | 2,111  | 483      | 1   | `@layer properties` |
+  | 1,675  | 472      | 1   | `@layer theme`      |
+  | 600    | 133      | 3   | `@keyframes`        |
+
+  **`@layer utilities` is 70.6% of the file and it is 100% Tailwind-generated.** The
+  repo's own CSS writes into `base` (tokens, palette) and `components` (every component
+  and engine stylesheet) and puts NOTHING in `utilities` — checked, not assumed. So the
+  hand-written CSS this repo actually maintains is the 12,968-byte `components` row:
+  **2.6 kB gzipped, or 13% of the bundle.** 115 kB of authored, heavily-commented source
+  minifies to that. There is no saving to chase in the repo's own stylesheets.
+
+  ### D5 — the finding: ELEVEN dead shadcn wrappers cost 5.30 kB gzipped of CSS
+
+  Tailwind v4 has no `@source` directive here — `src/index.css` is a bare
+  `@import 'tailwindcss'` — so it auto-detects and **scans files on disk. It does not
+  care what imports what.** Rollup's dead-code elimination and Tailwind's scanner
+  disagree completely: a component nothing imports still emits every utility its class
+  strings mention. The `data-*` and `group-data-*` variant families alone are 20.2 kB
+  raw across 123 rules, and one of them is literally `data-[slot=navigation-menu-…]`.
+
+  **The dead set is eleven files, not the seven recorded above**, because deadness is
+  transitive and the earlier count stopped at direct importers. `sidebar.tsx` has zero
+  importers AND is the only importer of `tooltip`, `sheet`, `separator` and `skeleton`,
+  so those four die with it; `card`, `textarea` and `label` were simply missed. Computed
+  as a fixed point rather than by eye: **`badge` `card` `label` `navigation-menu`
+  `separator` `sheet` `sidebar` `skeleton` `tabs` `textarea` `tooltip`**. Seven survive
+  — `alert` `button` `dialog` `input` `select` `switch` `table`.
+
+  **Measured by moving all eleven aside, rebuilding, and restoring** (tree verified
+  clean after):
+
+  | build          | CSS raw   | CSS gzip     | JS raw    | JS gzip      |
+  | -------------- | --------- | ------------ | --------- | ------------ |
+  | as shipped     | 124.33 kB | **20.97 kB** | 299.93 kB | **97.13 kB** |
+  | eleven removed | 82.25 kB  | **15.67 kB** | 299.93 kB | **97.13 kB** |
+  | delta          | −42.08 kB | **−5.30 kB** | 0         | **0**        |
+
+  `@layer utilities` falls 87,809 → 46,149 raw and 819 → 506 rules. `components` and
+  `base` do not move a byte, which is the control: the repo's own CSS is untouched, so
+  the saving is entirely Tailwind output for markup that ships to nobody.
+
+  **JS is byte-identical, confirming the row above was right about Rollup** — and wrong
+  to generalise it to "not bytes". It is not bytes in the bundle it was looking at.
+
+  **This closes 89% of the CSS breach on its own** — 5.97 kB over budget becomes 0.67 kB
+  over — by deleting files nothing imports. It is the cheapest 5 kB on this row by a
+  wide margin and it needs no spec, only a decision about whether the vendored wrappers
+  are kept as a shadcn convenience. Note what re-adding one costs: `shadcn add sidebar`
+  puts 5.30 kB of CSS back before a line of markup uses it.
+
+  **One lead in the residual, NOT a recommendation.** `@font-face` is 13 faces / 2
+  families — inside the two-family rule — but ten are Open Sans unicode-range subsets:
+  cyrillic-ext, cyrillic, greek-ext, greek, hebrew, math, symbols, vietnamese, latin-ext,
+  latin. Subsetting is correct practice and the FILES are only fetched when needed, but
+  all ten DECLARATIONS ship. A latin+latin-ext-only course would save most of that
+  1.74 kB gz — and this is a TEMPLATE, so dropping Greek or Cyrillic is a decision about
+  which courses it can serve, not an optimisation. Left open deliberately.
+
+  **Next step is a spec, not a patch** — for the JS half. The gap there is ~17 kB
+  gzipped, the options differ in kind (defer the dialog / drop Base UI wrappers for
+  native elements / hydrate islands instead of the page), and picking between them is a
+  design conversation. The CSS half no longer needs one.
 
 - **D2 — the `BackToTopButton` mount.** **DONE 2026-09-10**, `97a5b4b` + `8e3c49f` +
   `1a5500b` (the mint restyle).
