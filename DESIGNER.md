@@ -121,6 +121,15 @@ Three things worth knowing before you trust it:
   first because they are the one-file re-skin. The semantic pairs below them are
   the result — a surface with the text colour it guarantees contrast for. Change a
   primitive, save, and every pair updates in front of you.
+- **The page ground is `--paper`, not `--white`, and that is an accessibility
+  decision rather than a taste one.** A pure-white page raises visual stress for
+  dyslexic readers — the British Dyslexia Association's style guidance asks for an
+  off-white or cream background — and the glare tires anyone reading a long lesson.
+  Cards stay `--white`, so they lift off the page without a border doing the work.
+  If you re-skin, keep that relationship: a page ground at or near pure white
+  undoes it. Light theme only; the dark theme's ground is already tinted. Measured
+  at `#fbf9f4`: body text 14.08:1 on the page and 14.81:1 on a card, both far above
+  AA's 4.5:1.
 - **Use the theme switch at the top right.** Half of what the page shows is a
   light/dark pair, and the two are set independently in `tokens.css`. A re-skin is
   not finished until both look right.

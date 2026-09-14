@@ -64,8 +64,8 @@ export interface TypeSpecimen {
 export const PRIMITIVE_SWATCHES: readonly PrimitiveGroup[] = [
   {
     title: 'Greyscale — Cambridge Slate',
-    note: 'Text is Slate 4, never pure black. Slate 2 is lines and borders.',
-    tokens: ['--white', '--slate-1', '--slate-2', '--slate-3', '--slate-4'],
+    note: 'Text is Slate 4, never pure black. Slate 2 is lines and borders. Paper is the page ground — off-white, because a pure-white page raises visual stress for dyslexic readers; cards stay White so they lift off it.',
+    tokens: ['--white', '--paper', '--slate-1', '--slate-2', '--slate-3', '--slate-4'],
   },
   {
     title: 'Core — Cambridge Blue family',

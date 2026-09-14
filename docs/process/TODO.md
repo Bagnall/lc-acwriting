@@ -607,3 +607,5 @@ build, so it cannot return. Two remain:
 | 2026-09-14 | `e4b10b4` | **course mark in the header**; guard d now sweeps `course.config.ts`                |
 | 2026-09-14 | `1ca5f3b` | course mark **masked, not `<img>`** — it was invisible in dark                      |
 | 2026-09-14 | see below | **vocabulary before grammar** in the example; per-term audio on the word list       |
+| 2026-09-14 | `7d6216d` | vocabulary row **clickable end to end**, delegating to its speaker button           |
+| 2026-09-14 | see below | page ground is **`--paper`, not white** — off-white for dyslexic readers            |

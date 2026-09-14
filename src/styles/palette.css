@@ -17,6 +17,14 @@
   :root {
     /* Greyscale — Cambridge Slate (use Slate 4 for text, never pure black) */
     --white: #fff;
+
+    /* Page ground. Off-white, not white: a pure-white page raises visual stress for
+       dyslexic readers — the British Dyslexia Association's style guidance asks for
+       an off-white or cream background — and the glare is uncomfortable for anyone
+       reading a long lesson. Warm rather than grey so it reads as paper. Kept very
+       close to white so cards, which stay --white, lift off it without a border
+       doing the work. Light theme only: the dark theme's ground is already tinted. */
+    --paper: #fbf9f4;
     --slate-1: #eceef1; /* lightest surface           */
     --slate-2: #b5bdc8; /* lines / borders / muted     */
     --slate-3: #546072; /* secondary text / muted-fg   */

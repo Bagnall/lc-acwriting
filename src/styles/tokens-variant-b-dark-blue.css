@@ -16,7 +16,7 @@
     --radius: 0.625rem;
 
     /* Surfaces */
-    --background: var(--white);
+    --background: var(--paper);
     --foreground: var(--slate-4);
     --card: var(--white);
     --card-foreground: var(--slate-4);
