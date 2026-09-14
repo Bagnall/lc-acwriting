@@ -31,7 +31,22 @@ import type { NavSection } from './nav-section';
 interface HeaderProps {
   /** Ordered top-level sections; one nav link is derived per entry, in order. */
   sections: readonly NavSection[];
-  /** Id of the section currently in view — its link gets aria-current. */
+  /**
+   * Id of the section the reader last NAVIGATED to — the in-page hash — whose link
+   * carries `aria-current="page"`.
+   *
+   * NOT "the section currently in view", which is what this comment used to claim.
+   * `PageLayout` seeds it from the hash at mount and thereafter updates it only on
+   * `hashchange`, so scrolling past a section does not touch it and `aria-current`
+   * stays on the last followed link until another is followed.
+   *
+   * That is a limit, not a bug to route around here. `aria-current="page"` on the
+   * link the reader chose is honest on its own terms — it marks where they asked to
+   * be. Making it track the VIEWPORT needs a scroll-spy in `PageLayout` (TODO §D6),
+   * which is a different feature with its own cost, not a one-line fix. The name is
+   * kept because renaming it touches nine call sites to no one's benefit while the
+   * scroll-spy question is still open; this comment is the contract.
+   */
   activeSectionId?: string;
   /** Site/course title for the brand link (defaults to the course config title). */
   siteTitle?: string;

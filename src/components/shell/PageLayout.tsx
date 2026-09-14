@@ -44,6 +44,9 @@ function currentHashId(): string {
 }
 
 export default function PageLayout({ title, sections, themeToggle }: PageLayoutProps) {
+  // Seeded from the hash at mount, then moved only by `hashchange` below. So it is
+  // "the section last navigated to", never "the section on screen" — see the prop's
+  // doc on `Header`, which is where that distinction is spelled out.
   const [activeSectionId, setActiveSectionId] = useState(currentHashId);
 
   // In-page nav: when the hash changes to a section, mark it active AND move focus

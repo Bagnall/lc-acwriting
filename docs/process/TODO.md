@@ -437,12 +437,16 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   - **Two navs hold different a11y standards.** `LessonSideNav` has focus-move-in, a
     Tab trap, `inert` when closed, Escape + focus restore. `Header`'s mobile panel has
     Escape and `hidden` only — no trap, no focus move in, no scroll lock.
-  - **`activeSectionId` does not mean what its doc says.** `Header.tsx` calls it "the
-    section currently in view", but `PageLayout` only updates it on `hashchange`, so
-    `aria-current` is stale the moment the reader scrolls. Either build a real
-    scroll-spy or correct the comment. A scroll-spy does NOT contradict §D4's "delete
-    the observer": that observer watched ITSELF to answer a question scrolling already
-    answers; a spy watches OTHER elements to answer one the DOM cannot.
+  - **`activeSectionId` — the DOC is fixed, the SCROLL-SPY is still open.**
+    `Header.tsx` called it "the section currently in view"; `PageLayout` only updates
+    it on `hashchange`, so `aria-current` was stale the moment the reader scrolled.
+    **Corrected 2026-09-14**: the prop now documents what it is — the section last
+    NAVIGATED to — and says plainly what it is not, so nobody reads viewport tracking
+    into it. The name is unchanged on purpose; renaming touches nine call sites to no
+    benefit while the real question is open. **Still open: whether to build the
+    scroll-spy at all.** It does NOT contradict §D4's "delete the observer" — that
+    observer watched ITSELF to answer a question scrolling already answers; a spy
+    watches OTHER elements to answer one the DOM cannot.
   - **Two headers, two shapes.** LO page is `max-w-5xl`, sticky, blurred, brand is a
     link, holds the nav landmark. `CourseHome` is `max-w-6xl`, static, brand is a `<p>`,
     and the landmark lives inside `LessonSideNav`.
