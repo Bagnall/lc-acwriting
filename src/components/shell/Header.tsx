@@ -148,6 +148,30 @@ export default function Header({
         </button>
       </nav>
 
+      {/* A DISCLOSURE, NOT A DIALOG — and the difference is the whole design.
+          `LessonSideNav` traps Tab, moves focus in, scroll-locks the page and uses
+          `inert`; this panel deliberately does NONE of that, and the two being
+          compared as "inconsistent a11y" is comparing a dialog with a disclosure.
+
+          It is an in-flow <div> immediately after the toggle in DOM order, with no
+          backdrop and nothing inert behind it. The page stays visible and usable.
+          So:
+
+          - NO Tab trap. Trapping Tab here would STRAND a keyboard user: the content
+            behind is not inert, they can legitimately want to reach it, and a trap
+            takes that away unless they happen to discover Escape. APG traps focus
+            for MODAL dialogs precisely because the rest of the page is inert.
+          - NO focus-move-in. The panel is the very next thing in DOM order, so Tab
+            already walks into it. Forcing focus in is modal behaviour, and it would
+            punish opening the menu and deciding not to use it.
+          - NO scroll lock, for the same reason: nothing is covering the page.
+          - `hidden`, NOT `inert`. `LessonSideNav` needs `inert` because `hidden`
+            (`display: none`) cannot slide, and it animates. This panel does not, so
+            `hidden` removes the links from the tree AND from focus order, which is
+            the stronger guarantee of the two.
+
+          What it DOES owe, and has: `aria-expanded` + `aria-controls` on the toggle,
+          and Escape to close with focus returned there (the effect above). */}
       <div
         id={MOBILE_PANEL_ID}
         hidden={!isMobileNavOpen}

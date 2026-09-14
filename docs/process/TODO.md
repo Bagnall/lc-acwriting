@@ -9,7 +9,7 @@ session, on either machine.
 | `LC_BASE_TEMPLATE_BUILD_HANDOVER.md`  | the numbered buildlist + tick history (steps 1–34)         |
 | `2026-08-06-post-phase-d-handover.md` | state snapshot at end of Phase D, plus the §5 decision log |
 
-**Last updated:** 2026-09-11 · **HEAD:** see `git log` · **Suite:** 98 files · 989 tests green
+**Last updated:** 2026-09-11 · **HEAD:** see `git log` · **Suite:** 98 files · 991 tests green
 · CI green · `main` unprotected by decision (job E1).
 
 Non-negotiable constraints for every job below live in
@@ -434,9 +434,19 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
 
 - **D6 — nav + landing-page polish.** The half cut out of D2, still with no spec.
   Surveyed 2026-09-10, so these are found, not speculative:
-  - **Two navs hold different a11y standards.** `LessonSideNav` has focus-move-in, a
-    Tab trap, `inert` when closed, Escape + focus restore. `Header`'s mobile panel has
-    Escape and `hidden` only — no trap, no focus move in, no scroll lock.
+  - **Two navs differ CORRECTLY — this row was a false alarm. Closed 2026-09-14.**
+    It read "two navs hold different a11y standards": `LessonSideNav` has
+    focus-move-in, a Tab trap, `inert` when closed, Escape + focus restore, while
+    `Header`'s mobile panel has Escape and `hidden` only. True, and not a defect —
+    the survey compared a DIALOG with a DISCLOSURE. `LessonSideNav` is a slide-over
+    that covers the page and scroll-locks it, so a trap is right. `Header`'s panel is
+    an in-flow `<div>` after the toggle with no backdrop and nothing inert behind it,
+    so a trap would STRAND a keyboard user who can see, and legitimately wants to
+    reach, the page behind. `hidden` also beats `inert` here: `LessonSideNav` needs
+    `inert` only because `display: none` cannot animate its slide, and this panel does
+    not animate. **Fix was documentation, not code** — the panel now carries the
+    reasoning so the next reader does not re-derive it, plus tests pinning the
+    no-trap contract.
   - **`activeSectionId` — the DOC is fixed, the SCROLL-SPY is still open.**
     `Header.tsx` called it "the section currently in view"; `PageLayout` only updates
     it on `hashchange`, so `aria-current` was stale the moment the reader scrolled.

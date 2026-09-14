@@ -77,6 +77,33 @@ describe('Header', () => {
     expect(html).toMatch(/<div[^>]*id="mobile-nav-panel"[^>]*hidden/);
   });
 
+  // The panel is a DISCLOSURE, not a dialog. `LessonSideNav` is the dialog — it
+  // covers the page, so it traps Tab, scroll-locks and uses `inert`. Copying that
+  // here in the name of consistency would strand a keyboard user in a panel with a
+  // live, visible page behind it. These two tests exist so that change has to be
+  // deliberate rather than accidental.
+  test('mobile panel uses hidden, not inert — nothing here is covering the page', () => {
+    const html = renderToStaticMarkup(<Header sections={SECTIONS} />);
+    const panel = /<div[^>]*id="mobile-nav-panel"[^>]*>/.exec(html)?.[0] ?? '';
+
+    expect(panel).toContain('hidden');
+    // `inert` would leave the links in the layout but unfocusable; `hidden` removes
+    // them from both, which is the stronger guarantee when there is no animation to
+    // preserve.
+    expect(panel).not.toContain('inert');
+  });
+
+  test('mobile panel follows the toggle in DOM order, so Tab reaches it unaided', () => {
+    const html = renderToStaticMarkup(<Header sections={SECTIONS} />);
+
+    // This ordering is WHY no focus-move-in is owed: Tab already walks from the
+    // toggle straight into the panel. Move the panel elsewhere in the markup and
+    // that stops being true, so the omission would become a real defect.
+    expect(html.indexOf('aria-controls="mobile-nav-panel"')).toBeLessThan(
+      html.indexOf('id="mobile-nav-panel"'),
+    );
+  });
+
   test('renders an optional theme-toggle slot inside the nav', () => {
     const html = renderToStaticMarkup(
       <Header sections={SECTIONS} themeToggle={<span data-testid="toggle-slot" />} />,
