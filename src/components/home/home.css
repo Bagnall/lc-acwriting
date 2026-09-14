@@ -36,13 +36,23 @@
     text-wrap: balance;
   }
 
+  /* BODY SIZE, NOT LARGER — and the 2px it gives up buys a clean accessibility report.
+     This is a tagline qualifying the <h1>, not a heading: it introduces no section, and
+     the outline is already h1 (hero) → h2 ("Lessons") → h3 (card titles) with no slot
+     for it. WAVE flagged it as a "possible heading" anyway, because that check is a
+     STYLING heuristic — short text set larger than body copy — and does not look at the
+     <hgroup> that says what this actually is. At 1rem it no longer matches the shape.
+
+     The hero loses nothing: its hierarchy comes from the 2.5–5rem display heading above,
+     not from 2px on the line beneath it. The accent rule and the muted colour, which are
+     what actually mark this as subordinate, are untouched. */
   .home-hero-subheading {
     max-width: 46ch;
     margin-top: 1.25rem;
     padding-left: 1.25rem;
     border-left: 2px solid var(--accent);
     color: var(--muted-foreground);
-    font-size: 1.125rem;
+    font-size: 1rem;
     line-height: 1.6;
   }
 
