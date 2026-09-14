@@ -56,6 +56,12 @@ below is active immediately, no manual `git config` step.
 | `bun run docs:tree`     | Regenerate the folder tree in `STRUCTURE.md`                         |
 | `DEBUG=1 bun run build` | Build, plus the two debug pages — showcase and sandbox               |
 
+`bun run dev` serves `/debug-sandbox.html` and `/exercise-showcase.html` whether or not
+that flag is set — **bookmark the two URLs**. Nothing in the course links to them and
+nothing should: a deployed build contains neither file, so an in-course link would work
+locally and 404 for every reader. (Vite takes 5174 when 5173 is busy; it prints the port
+it chose.)
+
 Serving from a sub-path (both deploy targets do) is one env var — it feeds the bundle
 and the prerender pass together, so hashed assets, the favicon and runtime audio/image
 URLs all resolve against the same base:

@@ -83,6 +83,19 @@ The flag fails closed: absent, empty, `0`, `false` or anything unrecognised all 
 
 `bun run dev` serves both pages either way; the flag only affects what a build emits.
 
+**Bookmark them rather than linking to them.** Nothing in the course links to either
+page, and nothing should: a link inside the course would work on your machine and 404
+for everyone else, because a deployed build does not contain these files. So the way to
+reach them quickly is a browser bookmark:
+
+```text
+http://localhost:5173/debug-sandbox.html
+http://localhost:5173/exercise-showcase.html
+```
+
+If a bookmark looks dead, check the port — Vite quietly takes 5174 (then 5175, …) when
+5173 is already in use, and prints the one it chose.
+
 The build emits **one real HTML file per folder in `lo-config/`** (`lo-00-example` →
 `dist/example.html`) plus **`dist/index.html`, the course landing page** — hero copy
 from `src/config/course.config.ts` and one card per LO, linking to that LO's page.
