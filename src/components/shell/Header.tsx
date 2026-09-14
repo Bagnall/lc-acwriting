@@ -110,7 +110,12 @@ export default function Header({
   }, [isMobileNavOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 supports-backdrop-filter:bg-background/80 supports-backdrop-filter:backdrop-blur">
+    // `bg-card`, not `bg-background`: the page ground is `--paper`, an off-white
+    // chosen to cut glare for dyslexic readers, and a header painted the same colour
+    // as the page dissolves into it. Card is the surface token that means "a plane
+    // above the page" — white in the light theme, the lifted dark surface in the dark
+    // one — so the bar reads as a bar in both without hardcoding a colour in either.
+    <header className="sticky top-0 z-40 border-b border-border bg-card/95 supports-backdrop-filter:bg-card/80 supports-backdrop-filter:backdrop-blur">
       <nav
         aria-label="Main navigation"
         className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3"
