@@ -19,20 +19,17 @@
  * file simply does not need. Verified in-browser against the real sprite, both bands.
  *
  * THE SPRITE URL GOES THROUGH resolveAsset(). A hand-written `/icons.svg#id` is
- * root-absolute and 404s under a non-root base (anti-pattern #28). `spriteHref()` is
- * the choke point, mirroring src/sandbox/IconsSection.tsx.
+ * root-absolute and 404s under a non-root base (anti-pattern #28). `spriteHref()` in
+ * `@/lib/sprite` is the choke point, shared with IconsSection and the lesson rail.
  */
 import type { FooterSocial as FooterSocialEntry } from '@/config/footer.config';
-import { resolveAsset } from '@/lib/assets';
+import { spriteHref } from '@/lib/sprite';
 import FooterLink from './FooterLink';
 
 interface FooterSocialProps {
   /** Social accounts. Empty → nothing renders, not an empty row. */
   accounts: readonly FooterSocialEntry[];
 }
-
-/** `brand-facebook` → the base-aware sprite URL for that symbol. */
-const spriteHref = (id: string) => `${resolveAsset('icons.svg')}#${id}`;
 
 export default function FooterSocial({ accounts }: FooterSocialProps) {
   if (accounts.length === 0) return null;

@@ -9,17 +9,15 @@
  * THE SPRITE URL GOES THROUGH resolveAsset(). A `<use href="icons.svg#x">` written by hand
  * resolves against the CURRENT page, so it works at `/debug-sandbox.html` and 404s the
  * moment the app is served from a sub-path — carry-forward anti-pattern #35, and exactly
- * what guard c watches for. `spriteHref()` is the choke point; no literal reaches an href.
+ * what guard c watches for. `spriteHref()` in `@/lib/sprite` is the choke point, shared
+ * with FooterSocial and the landing page's lesson rail; no literal reaches an href.
  *
  * COLOUR IS NOT OURS TO SET. The sprite's own paths carry brand fills, so the swatch sits
  * on `--card` and the icons render as authored — a `currentColor` icon set would be a
  * different (and better) sprite, but that is a content decision, not a sandbox one.
  */
-import { resolveAsset } from '@/lib/assets';
+import { spriteHref } from '@/lib/sprite';
 import { SANDBOX_ICON_IDS } from './sandbox-catalog';
-
-/** `bluesky-icon` → the base-aware sprite URL for that symbol. */
-const spriteHref = (id: string) => `${resolveAsset('icons.svg')}#${id}`;
 
 export default function IconsSection() {
   return (
