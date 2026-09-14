@@ -396,6 +396,57 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   handover's "`main-*.js` is ~39kb raw today" is stale by roughly 7×. This also means
   the deferred **per-LO chunking** trigger below ("~a dozen LOs") is already met at ONE
   LO, by a different cause, so that row's wake-up condition is wrong as written.
+
+  ### D5 — what is actually IN the bundle (measured 2026-09-14 at `d272093`)
+
+  **Measured, not guessed** — this row's own warning is that guessing at bundle work
+  is how you spend a day for 2 kB. Method: `bunx vite build --sourcemap` to a scratch
+  dir, then sum each module's `sourcesContent` length out of `main-*.js.map` and group
+  by package. **These are SOURCE bytes, so they RANK contributors — they are not a
+  gzipped breakdown, and no figure here may be quoted as one.** Totals below are the
+  real build's gzip numbers; the percentages are the ranking.
+
+  `main-*.js` 298.27 kB raw / **96.61 kB gzipped** (< 80 kB), CSS 120.77 kB raw /
+  **20.36 kB gzipped** (< 15 kB).
+
+  | share | module                 |
+  | ----- | ---------------------- |
+  | 55.6% | `react-dom`            |
+  | 18.5% | `@base-ui/react`       |
+  | 4.1%  | `@base-ui/utils`       |
+  | 4.0%  | app `components/shell` |
+  | 2.2%  | app `lo/rich-text`     |
+  | 1.6%  | app `lo/blocks`        |
+  | 1.6%  | app `components/home`  |
+  | 1.3%  | `lucide-react`         |
+
+  Three facts that should shape whatever is decided:
+
+  - **Base UI is ~23% of main, and FOUR wrappers put it there**: `ui/button` (4
+    importers), `ui/input` (3), `ui/switch` (1 — the theme toggle), `ui/dialog` (1 —
+    the rich-text modal). `ui/select` is NOT among them: it is already lazy and sits
+    in its own chunk (69.54 kB raw / 25.06 kB gzipped), so the select engine is not
+    the problem and splitting it again buys nothing. The dialog is the interesting
+    one — it ships on every LO page but only renders once a reader clicks a modal
+    link, so it is the clearest candidate for deferring.
+  - **`react-dom` is 55.6% and is not negotiable** while the page hydrates as one
+    React tree. Any route to < 80 kB either shrinks the other 44% to almost nothing,
+    or changes how much of the page is React at all. These pages are PRERENDERED, so
+    there is a real islands-shaped question underneath this row — that is an
+    architecture decision, not an optimisation, and it needs a spec.
+  - **Seven shadcn wrappers have no importer** — `tooltip`, `tabs`, `sidebar`,
+    `sheet`, `separator`, `navigation-menu`, `badge`. With no importer Rollup should
+    already exclude them, so deleting them is FILE HYGIENE, NOT BYTES. **Verify that
+    before counting any saving from it** — the attribution above cannot tell you
+    whether a module was excluded or merely small.
+
+  **The CSS breach is still unmeasured.** Nothing above touches it. Do the equivalent
+  attribution before proposing anything there.
+
+  **Next step is a spec, not a patch.** The gap is ~17 kB gzipped, the options differ
+  in kind (defer the dialog / drop Base UI wrappers for native elements / hydrate
+  islands instead of the page), and picking between them is a design conversation.
+
 - **D2 — the `BackToTopButton` mount.** **DONE 2026-09-10**, `97a5b4b` + `8e3c49f` +
   `1a5500b` (the mint restyle).
   **SCOPED DOWN BY DECISION on the day:** the row used to read "nav + landing-page
