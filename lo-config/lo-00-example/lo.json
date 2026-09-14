@@ -1,6 +1,6 @@
 {
   "title": "Example Learning Object",
-  "description": "A placeholder Learning Object that shows authors the page chrome — sections, accordions, blocks, exercises and a popup — with filler content only.",
+  "description": "A placeholder Learning Object that shows authors the page chrome \u2014 sections, accordions, blocks, exercises and a popup \u2014 with filler content only.",
   "image": "images/lo-placeholder.svg",
   "sections": [
     {
@@ -9,15 +9,15 @@
       "blocks": ["00-intro", "03-outcomes"]
     },
     {
+      "id": "vocabulary",
+      "label": "Vocabulary",
+      "blocks": ["02-vocabulary"]
+    },
+    {
       "id": "grammar",
       "label": "Grammar: formal and informal address",
       "navLabel": "Grammar",
       "blocks": ["01-grammar"]
-    },
-    {
-      "id": "vocabulary",
-      "label": "Vocabulary",
-      "blocks": ["02-vocabulary"]
     },
     {
       "id": "exercises",

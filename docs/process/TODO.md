@@ -9,7 +9,7 @@ session, on either machine.
 | `LC_BASE_TEMPLATE_BUILD_HANDOVER.md`  | the numbered buildlist + tick history (steps 1–34)         |
 | `2026-08-06-post-phase-d-handover.md` | state snapshot at end of Phase D, plus the §5 decision log |
 
-**Last updated:** 2026-09-11 · **HEAD:** see `git log` · **Suite:** 98 files · 992 tests green
+**Last updated:** 2026-09-11 · **HEAD:** see `git log` · **Suite:** 98 files · 994 tests green
 · CI green · `main` unprotected by decision (job E1).
 
 Non-negotiable constraints for every job below live in
@@ -605,3 +605,5 @@ build, so it cannot return. Two remain:
 | 2026-09-14 | `d272093` | Header's mobile panel documented as a **disclosure, not a dialog** — no trap owed   |
 | 2026-09-14 | `ad627ce` | D5 bundle **attributed by sourcemap** — data recorded, no fix attempted             |
 | 2026-09-14 | `e4b10b4` | **course mark in the header**; guard d now sweeps `course.config.ts`                |
+| 2026-09-14 | `1ca5f3b` | course mark **masked, not `<img>`** — it was invisible in dark                      |
+| 2026-09-14 | see below | **vocabulary before grammar** in the example; per-term audio on the word list       |

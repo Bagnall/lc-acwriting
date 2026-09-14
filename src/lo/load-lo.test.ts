@@ -18,8 +18,8 @@ test('loadLo (glob): loads the example LO with its sections in order', () => {
   expect(lo.title).toBe('Example Learning Object');
   expect(lo.sections.map((section) => section.id)).toEqual([
     'introduction',
-    'grammar',
     'vocabulary',
+    'grammar',
     'exercises',
   ]);
   // The exercises section holds both exercises, in manifest order.

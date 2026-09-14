@@ -61,6 +61,30 @@ test('vocabulary block renders a <dl>, term in target language and gloss in UI l
   expect(html).not.toMatch(/<dd[^>]*lang="es"/);
 });
 
+test('a vocabulary term can carry a clip, rendered beside the word it belongs to', () => {
+  const html = renderBlock('vocabulary', {
+    items: [{ term: 'buenos días', gloss: 'good morning', audio: 'audio/x.m4a' }],
+  });
+
+  // Inside the <dt>, not a column of its own: a control separated from the word it
+  // plays is meaningless to anyone navigating by element.
+  expect(html).toMatch(/<dt[^>]*>[\s\S]*buenos días[\s\S]*<button[\s\S]*<\/dt>/);
+  // Named by the term. "Play" alone would be identical on every row of the list.
+  expect(html).toContain('buenos días');
+  expect(html).toMatch(/aria-label="[^"]*buenos días/);
+  // NOT asserting the resolved URL here: the speaker is a <button> that plays through
+  // AudioManager on click, so the path is never in static markup. Guard d is what
+  // proves the file behind `audio` exists, and AudioClip owns resolveAsset.
+});
+
+test('a vocabulary term without a clip renders no audio control at all', () => {
+  const html = renderBlock('vocabulary', {
+    items: [{ term: 'buenos días', gloss: 'good morning' }],
+  });
+
+  expect(html).not.toContain('<button');
+});
+
 test('a block whose content does not match its type fails loud, naming the type', () => {
   expect(() => renderBlock('vocabulary', { text: ['wrong shape'] })).toThrow(/vocabulary/);
 });

@@ -2,19 +2,22 @@
   "type": "vocabulary",
   "title": "Placeholder vocabulary list",
   "content": {
-    "instructions": "Placeholder vocabulary note — list the words this accordion introduces, each with its gloss.",
+    "instructions": "Placeholder vocabulary note \u2014 list the words this accordion introduces, each with its gloss and, when you have a recording, a clip of the word being said.",
     "items": [
       {
         "term": "Placeholder term one",
-        "gloss": "placeholder gloss one"
+        "gloss": "placeholder gloss one",
+        "audio": "audio/lo-00-example/placeholder.m4a"
       },
       {
         "term": "Placeholder term two",
-        "gloss": "placeholder gloss two"
+        "gloss": "placeholder gloss two",
+        "audio": "audio/lo-00-example/placeholder.m4a"
       },
       {
         "term": "Placeholder term three",
-        "gloss": "placeholder gloss three"
+        "gloss": "placeholder gloss three",
+        "audio": "audio/lo-00-example/placeholder.m4a"
       }
     ]
   }
