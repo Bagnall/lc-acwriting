@@ -35,6 +35,32 @@ describe('CourseHome', () => {
     expect(html).toMatch(new RegExp(`<h1[^>]*>${courseConfig.landingCopy.heading}`));
   });
 
+  // §D · D7: the top bar is gone, so the course name lives in the hero. It is an
+  // <hgroup> <p>, NOT a heading — the outline is h1 → h2 ("Lessons") → h3 (card
+  // titles), and a heading here would break it. The <hgroup> is what says the two
+  // paragraphs qualify the h1 rather than floating beside it.
+  test('names the course in the hero, as an hgroup subtitle rather than a heading', () => {
+    const html = renderToStaticMarkup(<CourseHome lessons={LESSONS} />);
+
+    expect(html).toContain('<hgroup');
+    expect(html).toMatch(new RegExp(`<hgroup[^>]*>.*${courseConfig.courseTitle}.*<h1`, 's'));
+    expect(html).toContain(`<p class="home-hero-eyebrow">${courseConfig.courseTitle}`);
+    expect((html.match(/<h1/g) ?? []).length).toBe(1);
+    expect((html.match(/<h2/g) ?? []).length).toBe(1);
+  });
+
+  // The <header> survives with no bar of its own because §17 puts the primary nav
+  // inside it and guard h enforces that. It must stay UNSTYLED: a background, a border
+  // or a backdrop-filter would give the rail's fixed descendants a containing block and
+  // pin them inside a zero-height box.
+  test('keeps one bare <header> for the nav landmark, with no bar of its own', () => {
+    const html = renderToStaticMarkup(<CourseHome lessons={LESSONS} />);
+
+    expect((html.match(/<header/g) ?? []).length).toBe(1);
+    expect(html).toContain('<header>');
+    expect(html.indexOf('<header')).toBeLessThan(html.indexOf('lesson-rail'));
+  });
+
   test('renders one card per LO, in the order given', () => {
     const html = renderToStaticMarkup(<CourseHome lessons={LESSONS} />);
 

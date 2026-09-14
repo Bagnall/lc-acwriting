@@ -20,24 +20,30 @@
  * strict h1 → h2 → h3 outline (hero → "Lessons" → card titles). The one nav landmark
  * on this page is the lesson nav; there are no in-page sections to link to.
  *
- * THE LEFT RAIL STAYS INSIDE <header>, AND THAT IS A CONSTRAINT RATHER THAN A CHOICE
- * (§D · D7). `LessonRail` used to be a "Lessons" button here, sitting BEFORE the course
- * title — which reads as though the button were what the page is about. It is now a
- * permanent strip down the left edge, but it is still rendered from inside this header,
- * because §17 puts the page's primary nav in the header's subtree and guard h enforces
- * it. The strip is `position: fixed`, so where it sits in the DOM and where it is
- * painted are two different questions; `.home-shell` pads the page out of its way.
+ * THERE IS NO TOP BAR, AND <header> IS NOW AN EMPTY-LOOKING WRAPPER ON PURPOSE
+ * (§D · D7). The landing page's chrome is the left rail; a bar above it was a second
+ * piece of furniture holding one title and one toggle, and both found better homes —
+ * the title in the hero below, the toggle in the rail.
  *
- * That works only because this header is NOT backdrop-blurred — a `backdrop-filter`
- * would make it the containing block for its fixed descendants and pin both the strip
- * and the panel inside the bar. The note below has always said so; D7 is what makes it
- * load-bearing.
+ * The <header> element STAYS because §17 puts the page's primary nav inside it and
+ * guard h enforces that (it caught an earlier shape with `nav-outside-header`). It
+ * carries no styling and every child it has is `position: fixed`, so it collapses to
+ * zero height and paints nothing of its own — which is also why it must NOT be given a
+ * background, a border or a `backdrop-filter`: a `backdrop-filter` in particular would
+ * make it the containing block for those fixed descendants and pin the rail and the
+ * panel inside a zero-height box.
+ *
+ * THE COURSE TITLE IS AN <hgroup> SUBTITLE, NOT A HEADING. `courseTitle` and the hero
+ * subheading are both styled prominently and neither is a section heading — the outline
+ * is h1 (hero) → h2 ("Lessons") → h3 (card titles), and inserting either would break it.
+ * `<hgroup>` is the element the HTML Living Standard defines for exactly this: one
+ * h1–h6 plus any number of <p> that qualify it. That makes the relationship explicit
+ * instead of leaving two floating styled paragraphs for a checker to guess at.
  */
 import { courseConfig } from '@/config/course.config';
 import { headingId } from '@/lib/headingId';
 import BackToTopButton from '@/components/shell/BackToTopButton';
 import Footer from '@/components/shell/Footer';
-import ThemeToggle from '@/components/shell/ThemeToggle';
 import type { LoIndexEntry } from '@/lo/lo-index';
 import LessonRail from './LessonRail';
 import LoCard from './LoCard';
@@ -60,20 +66,11 @@ export default function CourseHome({ lessons }: CourseHomeProps) {
       </a>
 
       <div className="home-shell">
-        {/* Deliberately NOT sticky and NOT backdrop-blurred, unlike the LO page header:
-            a `backdrop-filter` makes an element the containing block for its fixed
-            descendants, which would trap the rail and the sliding panel inside this
-            bar. LessonRail is a child of this element for §17's sake, not for
-            layout's — it paints itself against the viewport edge. */}
-        <header className="border-b border-border bg-card">
+        {/* Unstyled and zero-height by design — see the note above. LessonRail is its
+            child for §17's sake, not for layout's: it paints itself against the
+            viewport edge. */}
+        <header>
           <LessonRail lessons={lessons} />
-          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-            {/* The brand is plain text here: this IS the page it would link to. */}
-            <p className="mr-auto font-heading text-lg font-semibold tracking-tight text-foreground">
-              {courseConfig.courseTitle}
-            </p>
-            <ThemeToggle />
-          </div>
         </header>
 
         <main
@@ -81,12 +78,16 @@ export default function CourseHome({ lessons }: CourseHomeProps) {
           tabIndex={-1}
           className="mx-auto w-full max-w-6xl px-4 focus:outline-none"
         >
-          <div className="home-hero">
+          <hgroup className="home-hero">
+            {/* The course name, which used to be the top bar's only content. An
+                <hgroup> <p> BEFORE the heading is the standard eyebrow shape, and it
+                is where the page says which course this is. */}
+            <p className="home-hero-eyebrow">{courseConfig.courseTitle}</p>
             <h1 className="home-hero-heading">{courseConfig.landingCopy.heading}</h1>
             {courseConfig.landingCopy.subheading === undefined ? null : (
               <p className="home-hero-subheading">{courseConfig.landingCopy.subheading}</p>
             )}
-          </div>
+          </hgroup>
 
           <section aria-labelledby={LESSONS_HEADING_ID} className="pb-12">
             <h2

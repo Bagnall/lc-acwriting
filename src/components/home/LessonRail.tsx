@@ -27,7 +27,8 @@
  *     header block recorded this as the reason the rail was not ported in Phase D; it is
  *     hand-rolling, not D7, that answers it.
  *
- * ONE MECHANISM, TWO STATES. The rail is in flow and always there; expanding ALWAYS
+ * ONE MECHANISM, TWO STATES. The rail is fixed to the left edge and always there;
+ * expanding ALWAYS
  * overlays, at every width. French's expanded sidebar pushes the content sideways, which
  * would mean pushing on desktop and overlaying on mobile — and branching the focus trap
  * and scroll lock on viewport needs `matchMedia`, i.e. exactly the JS-measured breakpoint
@@ -47,10 +48,17 @@
  * NO-JS: the rail renders with its social links live and its panel closed and inert, and
  * the toggle does nothing. Lesson navigation without JavaScript is the card grid, which
  * is the whole list.
+ *
+ * THE STRIP RENDERS UNCONDITIONALLY; only the LESSON parts are conditional. A course
+ * with no LOs has no index to open, so it gets no menu button and no panel — but it
+ * still gets a rail, because the rail also carries the theme control and the social
+ * links, and a half-built course losing its dark mode would be a strange way to
+ * discover that no lessons exist yet. The cards say that instead.
  */
 import { useEffect, useRef, useState } from 'react';
 import { MenuIcon, XIcon } from 'lucide-react';
 import { footerConfig } from '@/config/footer.config';
+import ThemeToggleButton from '@/components/shell/ThemeToggleButton';
 import { resolveAsset } from '@/lib/assets';
 import { spriteHref } from '@/lib/sprite';
 import type { LoIndexEntry } from '@/lo/lo-index';
@@ -127,28 +135,27 @@ export default function LessonRail({ lessons }: LessonRailProps) {
     };
   }, [isOpen]);
 
-  // A course with no LOs has no index to open. The cards say so instead, and a rail
-  // holding nothing but social icons is not what this component is for.
-  if (lessons.length === 0) return null;
+  const hasLessons = lessons.length > 0;
 
   return (
     <>
-      {/* The strip itself: in flow, sticky to the top of the viewport as the grid
-          scrolls past it, and the page's left edge at every width down to 320. */}
+      {/* The strip itself: fixed to the page's left edge at every width down to 320. */}
       <div className="lesson-rail">
-        <button
-          ref={toggleRef}
-          type="button"
-          aria-expanded={isOpen}
-          aria-controls={PANEL_ID}
-          onClick={() => setIsOpen((open) => !open)}
-          className="lesson-rail-toggle"
-        >
-          <MenuIcon className="size-5" aria-hidden="true" />
-          {/* Icon-only, so the name is visually hidden rather than absent — without
-              it the control announces as "button" and nothing else. */}
-          <span className="sr-only">Lessons</span>
-        </button>
+        {hasLessons ? (
+          <button
+            ref={toggleRef}
+            type="button"
+            aria-expanded={isOpen}
+            aria-controls={PANEL_ID}
+            onClick={() => setIsOpen((open) => !open)}
+            className="lesson-rail-toggle"
+          >
+            <MenuIcon className="size-5" aria-hidden="true" />
+            {/* Icon-only, so the name is visually hidden rather than absent — without
+                it the control announces as "button" and nothing else. */}
+            <span className="sr-only">Lessons</span>
+          </button>
+        ) : null}
 
         {/* Social, as french has it: stacked, centred, sitting partway down the strip
             rather than tucked under the toggle. `role="group"` and not a nav landmark —
@@ -183,58 +190,67 @@ export default function LessonRail({ lessons }: LessonRailProps) {
             ))}
           </div>
         )}
+
+        {/* Last in the strip, so the flex column reads top-to-bottom as: open the
+            lessons, follow us, change the theme. `margin-block: auto` on the social
+            stack is what pushes this to the bottom. */}
+        <ThemeToggleButton />
       </div>
 
-      {/* Backdrop: a click-to-close surface, and the dimming that says the panel is
-          modal. Purely decorative — Escape and the close button are the accessible
-          routes out, so it is not a control and carries no role. */}
-      <div
-        className="lesson-nav-backdrop"
-        data-open={isOpen}
-        aria-hidden="true"
-        onClick={() => setIsOpen(false)}
-      />
-
-      <div
-        ref={panelRef}
-        id={PANEL_ID}
-        className="lesson-nav-panel"
-        data-open={isOpen}
-        inert={!isOpen}
-        aria-hidden={!isOpen}
-      >
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <p className="font-heading text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-            Lessons
-          </p>
-          <button
-            type="button"
+      {!hasLessons ? null : (
+        <>
+          {/* Backdrop: a click-to-close surface, and the dimming that says the panel is
+              modal. Purely decorative — Escape and the close button are the accessible
+              routes out, so it is not a control and carries no role. */}
+          <div
+            className="lesson-nav-backdrop"
+            data-open={isOpen}
+            aria-hidden="true"
             onClick={() => setIsOpen(false)}
-            aria-label="Close lesson list"
-            className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-          >
-            <XIcon className="size-4" aria-hidden="true" />
-          </button>
-        </div>
+          />
 
-        <nav aria-label="Lessons" className="overflow-y-auto px-2 py-3">
-          <ol className="flex flex-col gap-0.5">
-            {lessons.map((lesson, index) => (
-              <li key={lesson.folder}>
-                <a
-                  href={resolveAsset(`${lesson.slug}.html`)}
-                  className="flex items-baseline gap-3 rounded-md px-3 py-2 text-sm text-foreground/85 transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                >
-                  <span aria-hidden="true" className="font-mono text-xs text-muted-foreground">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span>{lesson.title}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </nav>
-      </div>
+          <div
+            ref={panelRef}
+            id={PANEL_ID}
+            className="lesson-nav-panel"
+            data-open={isOpen}
+            inert={!isOpen}
+            aria-hidden={!isOpen}
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+              <p className="font-heading text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+                Lessons
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                aria-label="Close lesson list"
+                className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                <XIcon className="size-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <nav aria-label="Lessons" className="overflow-y-auto px-2 py-3">
+              <ol className="flex flex-col gap-0.5">
+                {lessons.map((lesson, index) => (
+                  <li key={lesson.folder}>
+                    <a
+                      href={resolveAsset(`${lesson.slug}.html`)}
+                      className="flex items-baseline gap-3 rounded-md px-3 py-2 text-sm text-foreground/85 transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    >
+                      <span aria-hidden="true" className="font-mono text-xs text-muted-foreground">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span>{lesson.title}</span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          </div>
+        </>
+      )}
     </>
   );
 }

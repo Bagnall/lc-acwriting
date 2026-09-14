@@ -60,8 +60,40 @@ describe('LessonRail', () => {
     expect(html).toMatch(/id="lesson-nav-panel"[^>]*aria-hidden="true"/);
   });
 
-  test('renders nothing at all for a course with no lessons', () => {
-    expect(renderToStaticMarkup(<LessonRail lessons={[]} />)).toBe('');
+  // The strip is unconditional; only the LESSON parts depend on there being lessons.
+  // A half-built course keeps its theme control and its social links — losing dark mode
+  // would be a strange way to discover that no lessons exist yet.
+  test('a course with no lessons keeps the strip but loses the menu and the panel', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={[]} />);
+
+    expect(html).toContain('class="lesson-rail"');
+    expect(html).toContain('aria-label="Dark mode"');
+    expect(html).toContain('lesson-rail-social-link');
+    expect(html).not.toContain('lesson-nav-panel');
+    expect(html).not.toContain('aria-controls');
+    expect(html).not.toContain('<nav');
+  });
+
+  // The rail is the landing page's only chrome now, so the theme control lives in it.
+  // A fixed accessible name with the state on `aria-pressed` — NOT a label that flips
+  // between "Dark mode" and "Light mode", which spec §1 bans because a reader cannot
+  // tell whether such a name describes the state or the action.
+  test('carries the theme control, named once and stateful via aria-pressed', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toMatch(/<button[^>]*aria-pressed="false"[^>]*aria-label="Dark mode"/);
+    expect(html).not.toContain('Light mode');
+  });
+
+  // Prerendered markup must equal the first client render, and `useTheme`'s server
+  // snapshot is pinned to 'light' for exactly that reason. If this ever renders
+  // `aria-pressed="true"`, the server snapshot has been lost and dark-theme readers
+  // get a hydration mismatch.
+  test('the theme control ships in its light-theme position, whatever the environment', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toContain('aria-pressed="false"');
+    expect(html).not.toContain('aria-pressed="true"');
   });
 
   // The D7 decision that is worth a guard rather than a comment: the rail shows the

@@ -579,6 +579,21 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   NOT fixed here** — different component, different concern; its icons currently render
   the light theme's colour on the dark footer.
 
+  **Follow-up, same day — the top bar is gone (WAVE pass).** The landing page's bar held
+  one title and one toggle, and both found better homes: `courseTitle` is now an
+  `<hgroup>` eyebrow above the `<h1>`, and the theme control is `ThemeToggleButton`, a
+  compact `aria-pressed` toggle at the foot of the rail. `<header>` STAYS as an unstyled,
+  zero-height wrapper — §17 puts the primary nav inside it — and must never be given a
+  background, border or `backdrop-filter`, which would give its fixed children a
+  containing block. `<hgroup>` is what answers WAVE's two "possible heading" alerts: both
+  paragraphs are subtitles of the h1, not headings, and the outline stays h1 → h2 → h3.
+  `LessonRail` now renders its strip unconditionally so an empty course keeps its theme
+  control; only the menu button and the panel depend on there being lessons. WAVE's
+  "redundant link" is NOT fixed and is not a defect: it is the panel's lesson link and
+  the card's link to the same LO, adjacent in link order only because the demo course has
+  exactly one lesson — with several, the panel's last link is LOn and the grid's first is
+  LO1. Suite 1003 → 1007.
+
   **Verified:** both themes; 320 / 375 / 768 / 1024 / 1440 with no overflow and the rail
   48px at x=0 in every one; prerender parity as above; Escape closes and restores focus
   to the toggle; focus moves into the panel on open; Tab wraps last→first; scroll lock

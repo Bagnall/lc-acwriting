@@ -13,6 +13,19 @@
     padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
   }
 
+  /* The course name above the display heading. Small, spaced and muted so it reads as
+     an identifier rather than competing with the h1 — it is an <hgroup> <p>, not a
+     heading, and it should not look like one. */
+  .home-hero-eyebrow {
+    margin-bottom: 0.75rem;
+    color: var(--muted-foreground);
+    font-family: var(--font-heading);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
   .home-hero-heading {
     font-family: var(--font-display);
     font-size: clamp(2.5rem, 1.5rem + 5vw, 5rem);
@@ -189,13 +202,7 @@
      viewport, which the card grid (one column at that width) can spare. */
   .home-shell {
     --lesson-rail-width: 3rem;
-  }
 
-  /* `:has()`, not a flag passed down from CourseHome: the rail already decides for
-     itself whether it renders at all (a course with no lessons has no index, so it
-     returns nothing), and a second copy of that condition here is precisely how the
-     two drift apart. The page reacts to the rail BEING there. */
-  .home-shell:has(.lesson-rail) {
     padding-inline-start: var(--lesson-rail-width);
   }
 
