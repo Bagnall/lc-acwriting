@@ -56,7 +56,7 @@
  * discover that no lessons exist yet. The cards say that instead.
  */
 import { useEffect, useRef, useState } from 'react';
-import { MenuIcon, XIcon } from 'lucide-react';
+import { PanelLeftIcon, XIcon } from 'lucide-react';
 import { footerConfig } from '@/config/footer.config';
 import ThemeToggleButton from '@/components/shell/ThemeToggleButton';
 import { resolveAsset } from '@/lib/assets';
@@ -150,9 +150,15 @@ export default function LessonRail({ lessons }: LessonRailProps) {
             onClick={() => setIsOpen((open) => !open)}
             className="lesson-rail-toggle"
           >
-            <MenuIcon className="size-5" aria-hidden="true" />
+            {/* `panel-left`, not a hamburger, matching the reference's SidebarTrigger.
+                A hamburger is the convention for a MENU that drops or slides over the
+                page; this opens a panel pinned to the left edge, and the panel-left
+                glyph says which edge and which shape. */}
+            <PanelLeftIcon className="size-5" aria-hidden="true" />
             {/* Icon-only, so the name is visually hidden rather than absent — without
-                it the control announces as "button" and nothing else. */}
+                it the control announces as "button" and nothing else. The reference
+                calls this "Toggle Sidebar"; "Lessons" names what the panel CONTAINS,
+                which is what a reader needs, not the widget it is implemented as. */}
             <span className="sr-only">Lessons</span>
           </button>
         ) : null}
