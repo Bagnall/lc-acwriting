@@ -1,0 +1,116 @@
+/**
+ * Tests for LessonRail (§D · D7) — the landing page's permanent left rail, as it
+ * arrives in the STATIC page (panel closed). What is asserted here is the part a
+ * static render can prove: the aria wiring, one link per LO, that a closed panel's
+ * links are genuinely out of reach rather than merely off-screen, and that the
+ * collapsed strip's social icons come from footer.config.ts rather than a second list.
+ *
+ * The rest — Escape, focus trap, focus restore, scroll lock, reduced motion — needs
+ * a real browser and is verified there (this suite has no DOM by design).
+ *
+ * These carry over from LessonSideNav.test.tsx unchanged apart from the component
+ * name: the open-state behaviour is the same code, and the point of D7 was to keep
+ * that bar rather than rebuild it lower.
+ */
+import { describe, expect, test } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { footerConfig } from '@/config/footer.config';
+import type { LoIndexEntry } from '@/lo/lo-index';
+import LessonRail from './LessonRail';
+
+const LESSONS: readonly LoIndexEntry[] = [
+  { folder: 'lo-00-example', slug: 'example', title: 'Example Learning Object' },
+  { folder: 'lo-01-greetings', slug: 'greetings', title: 'Greetings' },
+];
+
+describe('LessonRail', () => {
+  test('renders a toggle button that is collapsed and names its panel', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toMatch(/<button[^>]*aria-expanded="false"/);
+    expect(html).toMatch(/<button[^>]*aria-controls="lesson-nav-panel"/);
+    expect(html).toContain('id="lesson-nav-panel"');
+  });
+
+  // The toggle is icon-only, so without this it announces as "button" and nothing
+  // else — the whole rail would be unnamed to a screen reader.
+  test('the icon-only toggle carries a visually hidden name', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toContain('<span class="sr-only">Lessons</span>');
+  });
+
+  test('is one nav landmark with an accessible name, holding a link per LO', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect((html.match(/<nav/g) ?? []).length).toBe(1);
+    expect(html).toMatch(/<nav[^>]*aria-label="Lessons"/);
+    expect(html).toContain('href="/example.html"');
+    expect(html).toContain('href="/greetings.html"');
+  });
+
+  // Closed means UNREACHABLE, not just translated out of view: `inert` pulls the
+  // links out of the tab order and the AT tree together, so a keyboard user cannot
+  // tab into an invisible panel (the axe "aria-hidden with focusable descendants"
+  // failure). `hidden` would do that too, but cannot slide.
+  test('marks the closed panel inert and hidden from assistive tech', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toMatch(/id="lesson-nav-panel"[^>]*inert=""/);
+    expect(html).toMatch(/id="lesson-nav-panel"[^>]*aria-hidden="true"/);
+  });
+
+  test('renders nothing at all for a course with no lessons', () => {
+    expect(renderToStaticMarkup(<LessonRail lessons={[]} />)).toBe('');
+  });
+
+  // The D7 decision that is worth a guard rather than a comment: the rail shows the
+  // SAME accounts the footer does, read from the one config. A rail that declared its
+  // own array would pass every other test here and drift the day someone adds an
+  // account — which is exactly the defect footer.config.ts exists to prevent.
+  test('the collapsed strip reads its social accounts from footer.config.ts', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    for (const account of footerConfig.social) {
+      expect(html).toContain(`href="${account.href}"`);
+      expect(html).toContain(`#${account.icon}`);
+      expect(html).toContain(account.label);
+    }
+  });
+
+  // `role="group"` and NOT a second <nav>: spec §17 allows one nav landmark per page
+  // and the lesson panel above owns it. A nav here fails guard h on this page.
+  test('the social strip is a labelled group, not a second nav landmark', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(html).toMatch(/<div[^>]*role="group"[^>]*aria-label="Follow us"/);
+    expect((html.match(/<nav/g) ?? []).length).toBe(1);
+  });
+
+  // Every social account leaves the site, and every one of them says so — the pairing
+  // FooterLink makes for the footer's copies, restated here because this markup is
+  // the rail's own.
+  test('social links open in a new tab, safely, and announce that they do', () => {
+    const html = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+    const links = html.match(/<a[^>]*class="lesson-rail-social-link"[^>]*>/g) ?? [];
+
+    expect(links.length).toBe(footerConfig.social.length);
+    for (const link of links) {
+      expect(link).toContain('target="_blank"');
+      expect(link).toContain('rel="noopener noreferrer"');
+    }
+    expect(html).toContain('(opens in a new tab)');
+  });
+
+  // Prerender/hydration parity (handover §3) is the hard constraint D7 had to answer,
+  // and the answer was to hand-roll rather than import shadcn's Sidebar, which reads a
+  // cookie on mount. Two identical static renders is the cheap proof that nothing in
+  // the collapsed rail depends on anything the server does not have.
+  test('the static render is deterministic — nothing here reads the client', () => {
+    const first = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+    const second = renderToStaticMarkup(<LessonRail lessons={LESSONS} />);
+
+    expect(first).toBe(second);
+    expect(first).not.toContain('sidebar_state');
+  });
+});

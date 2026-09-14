@@ -810,12 +810,18 @@ stays on).`eslint.config.js` is locked by the config-protection hook, so it was
   is deleted, and a test asserts it stays gone — a second list for the same fact is
   free to drift from the folders, and silent config drift is what this template exists
   to prevent.
-- **The sliding lesson nav is hand-rolled, not shadcn's `Sidebar`:** that component
-  branches on a JS-measured viewport (`useIsMobile`) and swaps a rail for a `Sheet`, so
-  its first client render cannot match prerendered markup; it also writes a state
-  cookie. `LessonSideNav` is one off-canvas panel at every width — `inert` when closed
-  (not `hidden`, which cannot slide), Escape/focus-trap/focus-restore/scroll-lock in
-  ~50 lines, motion in CSS so `prefers-reduced-motion` is honoured without JS.
+- **The landing page's left rail is hand-rolled, not shadcn's `Sidebar`:** that
+  component branches on a JS-measured viewport (`useIsMobile`) and swaps a rail for a
+  `Sheet`, so its first client render cannot match prerendered markup; it also writes a
+  state cookie. Re-measured when the rail was built (§D · D7): importing it in
+  `collapsible="icon"` mode took `main-*.js` from **96.83 kB to 117.89 kB gzipped**,
+  +21.06 kB on a page already over its < 80 kB budget, because it drags in Sheet,
+  Tooltip, Button, Input, Separator and Skeleton. `LessonRail` costs **+0.16 kB** and
+  is one strip plus one off-canvas panel at every width — `inert` when closed (not
+  `hidden`, which cannot slide), Escape/focus-trap/focus-restore/scroll-lock in ~50
+  lines, motion in CSS so `prefers-reduced-motion` is honoured without JS. Its collapsed
+  markup is static, so prerender and first client render are byte-identical — verified,
+  not assumed.
 
 ### Debug artifacts — one `DEBUG` flag, not two _(buildlist 16, spec §14)_
 

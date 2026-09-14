@@ -1,8 +1,9 @@
 /**
- * home.css — styling for the course landing page (Phase D). Co-located with the home
- * components and imported by CourseHome + LessonSideNav (same pattern as shell.css).
- * Plain CSS + semantic tokens only (no hardcoded colours or raw px palette values);
- * everything sits inside @layer components so Tailwind utilities still override.
+ * home.css — styling for the course landing page (Phase D, extended in §D · D7).
+ * Co-located with the home components and imported by CourseHome + LessonRail (same
+ * pattern as shell.css). Plain CSS + semantic tokens only (no hardcoded colours or raw
+ * px palette values); everything sits inside @layer components so Tailwind utilities
+ * still override.
  */
 @layer components {
   /* --- Hero ---------------------------------------------------------------
@@ -173,11 +174,142 @@
     transform: translateX(2px);
   }
 
-  /* --- Sliding lesson nav ------------------------------------------------
+  /* --- The permanent left rail (D7) --------------------------------------
+     The strip the page always shows. The page gets out of its way with PADDING,
+     because the rail is `fixed` and takes no space of its own.
+
+     A GRID COLUMN WAS THE FIRST SHAPE TRIED, and it fails a constraint: §17 puts the
+     primary nav inside <header>, so the panel — and with it the whole component — has
+     to live in the header's subtree, and a column cannot also be a sibling beside the
+     element it is inside. Guard h caught that, not a browser.
+
+     WIDTH IS A CUSTOM PROPERTY because the padding and the rail must agree on it, and
+     a second literal is how they stop agreeing. 3rem is 48px — comfortably over the
+     24x24 CSS px of WCAG 2.2 SC 2.5.8 for the controls inside it, and 15% of a 320px
+     viewport, which the card grid (one column at that width) can spare. */
+  .home-shell {
+    --lesson-rail-width: 3rem;
+  }
+
+  /* `:has()`, not a flag passed down from CourseHome: the rail already decides for
+     itself whether it renders at all (a course with no lessons has no index, so it
+     returns nothing), and a second copy of that condition here is precisely how the
+     two drift apart. The page reacts to the rail BEING there. */
+  .home-shell:has(.lesson-rail) {
+    padding-inline-start: var(--lesson-rail-width);
+  }
+
+  /* The strip: fixed to the viewport's left edge and permanently visible, so it does
+     not scroll away with the header (which is deliberately not sticky). Below the
+     backdrop (40) and the panel (50), which is how the social stack hides itself when
+     the panel opens over it, with no rule saying so. */
+  .lesson-rail {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--lesson-rail-width);
+    padding-block: 0.75rem;
+    border-inline-end: 1px solid var(--border);
+
+    /* `--card` is the token meaning "a plane above the page" — the same relationship
+       the cards have with the `--paper` ground, and the same call 36d8f3a made for the
+       LO page's header bar. Not a hardcoded white: it must read as a plane in BOTH
+       themes rather than being right in one. */
+    background-color: var(--card);
+  }
+
+  .lesson-rail-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius);
+    color: var(--foreground);
+
+    /* `background-color` only, and deliberately NOT `color`. A transition on a property
+       whose value comes from a token leaves the computed value pinned to the OLD token
+       when the theme swaps it — measured: the icon stayed #232830 on the dark rail,
+       1.46:1, until the transition was removed, at which point it snapped to #eceef1.
+       It also breaks the repo's own rule that motion stays on compositor-friendly
+       properties. `background-color` is safe here because the base state declares none,
+       so there is no token value for a theme change to strand. */
+    transition: background-color 180ms ease;
+  }
+
+  .lesson-rail-toggle:hover {
+    background-color: var(--muted);
+  }
+
+  .lesson-rail-toggle:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Partway down the strip, as in the reference — not tucked under the toggle, which
+     would read as one cluster of controls rather than two unrelated things. `auto`
+     margins rather than the reference's fixed `pt-32`: that is 8rem of padding which
+     pushes the icons off a short viewport, whereas centring in the leftover space
+     degrades to "as far down as there is room for". */
+  .lesson-rail-social {
+    --lesson-rail-social-size: 1.75rem;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-block: auto;
+  }
+
+  /* THE BOX IS THE ICON, matching `.footer-social-link` — and for the same reason:
+     1.75rem is 28px, so the target clears WCAG 2.2 SC 2.5.8 (24x24) without padding
+     that would make the ink sit inside the box. */
+  .lesson-rail-social-link {
+    display: inline-flex;
+    width: var(--lesson-rail-social-size);
+    height: var(--lesson-rail-social-size);
+    border-radius: var(--radius);
+    color: var(--muted-foreground);
+    opacity: 0.82;
+
+    /* `color` is left out for the reason given on the toggle above: it is declared in
+       the base state from a token, so transitioning it strands the icon on the previous
+       theme's colour. The hover colour change still happens — it just happens at once. */
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease;
+  }
+
+  .lesson-rail-social-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* After both base rules, not before: a `:hover` (0,2,0) declared ahead of the plain
+     `.lesson-rail-social-link` (0,1,0) is descending specificity, which stylelint flags
+     because it makes the cascade read backwards even when it happens to work. */
+  .lesson-rail-social-link:hover {
+    color: var(--foreground);
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  .lesson-rail-social-link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* --- Sliding lesson panel ----------------------------------------------
      The panel is FIXED, so it overlays the page from the viewport edge rather
-     than pushing the layout around. It slides on `transform` only (compositor
-     work, no layout), and is `inert` when closed — see LessonSideNav.tsx for why
-     that is not `hidden`. */
+     than pushing the layout around — including over the rail, which is how the
+     social stack hides itself while the panel is open without a rule saying so.
+     It slides on `transform` only (compositor work, no layout), and is `inert`
+     when closed — see LessonRail.tsx for why that is not `hidden`. */
   .lesson-nav-panel {
     position: fixed;
     inset-block: 0;
@@ -224,9 +356,15 @@
     .lo-card-blurb,
     .lo-card-cta,
     .lo-card-cta-icon,
+    .lesson-rail-toggle,
+    .lesson-rail-social-link,
     .lesson-nav-panel,
     .lesson-nav-backdrop {
       transition: none;
+    }
+
+    .lesson-rail-social-link:hover {
+      transform: none;
     }
 
     .lo-card:hover {

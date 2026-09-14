@@ -9,7 +9,7 @@ session, on either machine.
 | `LC_BASE_TEMPLATE_BUILD_HANDOVER.md`  | the numbered buildlist + tick history (steps 1–34)         |
 | `2026-08-06-post-phase-d-handover.md` | state snapshot at end of Phase D, plus the §5 decision log |
 
-**Last updated:** 2026-09-11 · **HEAD:** see `git log` · **Suite:** 98 files · 994 tests green
+**Last updated:** 2026-09-14 · **HEAD:** see `git log` · **Suite:** 99 files · 1003 tests green
 · CI green · `main` unprotected by decision (job E1).
 
 Non-negotiable constraints for every job below live in
@@ -510,7 +510,7 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
     watches OTHER elements to answer one the DOM cannot.
   - **Two headers, two shapes.** LO page is `max-w-5xl`, sticky, blurred, brand is a
     link, holds the nav landmark. `CourseHome` is `max-w-6xl`, static, brand is a `<p>`,
-    and the landmark lives inside `LessonSideNav`.
+    and the landmark lives inside `LessonRail`.
   - **`Header` is still 240-char inline Tailwind strings** while §D1 moved the footer to
     plain CSS in `@layer`. Pick one direction.
   - **The landing page reads sparse at 1440 with one LO** — hero, then a single card in
@@ -520,60 +520,71 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   `no-preference` opt-in fails closed on a user agent without the query. One commit
   across all three files, or none — a mixed idiom is worse than either.
 
-- **D7 — the landing page's left rail (NEW, 2026-09-14, agreed, unspecced).** Replace
-  the landing page's "Lessons" button — which currently sits BEFORE the course title
-  in the header and reads wrong there — with a thin icon rail pinned to the left edge,
-  permanently visible, expanding to a full panel. Matches french-lo-1's landing page.
+- **D7 — the landing page's left rail. DONE 2026-09-14.** The header's "Lessons"
+  button — which sat BEFORE the course title and read as though it were the page's
+  subject — is replaced by `LessonRail`: a 48px strip pinned to the viewport's left
+  edge, permanently visible, expanding into the panel `LessonSideNav` already owned.
+  Ported from french-lo-1's landing page, including the collapsed strip's stack of
+  social icons partway down it.
 
-  **It IS in the reference, and that was checked rather than assumed.** The rail could
-  easily have been the host site's chrome (the screenshot is
-  `lcitc.langcen.cam.ac.uk/french/french-basic/`, a page with its own furniture), which
-  would have made this a design invention rather than a port. It is not:
-  `src/components/layout/page-shell/LandingPage/LandingPage.jsx` imports `Sidebar`,
-  `SidebarProvider`, `SidebarTrigger` and friends from shadcn, plus `SOCIAL_LINKS`.
-  What it uses is the sidebar's `collapsible="icon"` mode.
+  **Decisions taken** (both put to the maintainer rather than assumed):
+  - **Landing page only**, as in the reference. LO pages keep their own header nav:
+    §17 allows one nav landmark per page and theirs owns it, their header is
+    backdrop-blurred (which would make it the containing block for the fixed panel and
+    trap it inside the bar), and the rail lists every LO — an index, which belongs on
+    the index page.
+  - **Social links go in the rail**, read from `footerConfig.social`, never a second
+    list. Same sprite `<use>` route as `FooterSocial`, whose `brand-*` symbols are
+    `fill="currentColor"` and so follow the theme with no dark-mode rules. Accepted
+    cost, recorded rather than overlooked: the five account names are now announced
+    twice on this page, which is ordinary for chrome repeated top and bottom.
 
-  **The primitive is already vendored here**: `src/components/ui/sidebar.tsx`. It is one
-  of the seven shadcn wrappers with ZERO importers (see §D5), so it costs nothing today
-  and would start costing the moment this job imports it.
+  **The three risks, and how each was actually closed**
+  1. **Prerender/hydration parity.** Closed by hand-rolling: nothing in the collapsed
+     rail reads a cookie, measures a viewport or needs `useIsHydrated`. VERIFIED rather
+     than reasoned — `.lesson-rail`, `.lesson-nav-backdrop` and `#lesson-nav-panel` are
+     byte-identical between `dist/index.html` and the hydrated DOM, and the console is
+     silent. The one diff anywhere in `#root` is Base UI's switch adding an `id` to its
+     own label, which predates this work.
+  2. **Bundle.** MEASURED BOTH WAYS before choosing. Importing `src/components/ui/sidebar.tsx`
+     in `collapsible="icon"` mode: `main-*.js` **96.83 → 117.89 kB gzipped, +21.06 kB**,
+     from its fan-out (Sheet, Tooltip, Button, Input, Separator, Skeleton) rather than
+     the rail. Hand-rolled: **96.83 → 96.99 kB, +0.16 kB** (CSS +0.19 kB). That
+     measurement is what decided the approach, not taste. `sidebar.tsx` keeps its zero
+     importers.
+  3. **Mobile.** Moot once hand-rolled — no `Sheet`, so no second Base UI dialog and no
+     second mobile nav pattern. The rail exists at every width down to 320, where it is
+     48px of 320 and the card grid is single-column anyway.
 
-  **Scope — what it touches**
-  - `CourseHome` wraps in `SidebarProvider`, rail as a sibling of the content.
-  - `LessonSideNav` is REPLACED, not joined. It already owns focus-move-in, a Tab trap,
-    `inert` when closed, Escape and focus restore, and a scroll lock. Two overlapping
-    nav mechanisms on one page is worse than either alone, and whatever replaces it
-    must carry that same behaviour across — it is the most accessible component in the
-    repo and the bar, not the baseline.
-  - The header's "Lessons" button goes, on the landing page.
+  **One mechanism, not two.** The rail is fixed and always there; expanding ALWAYS
+  overlays, at every width. French's expanded sidebar pushes content sideways, which
+  would mean pushing on desktop and overlaying on mobile — and branching the focus trap
+  and scroll lock on viewport needs `matchMedia`, i.e. exactly the JS-measured
+  breakpoint that disqualified shadcn's component. The panel covers the rail when open,
+  so the social stack hides itself with no rule saying so.
 
-  **Three risks, each capable of eating the job**
-  1. **Prerender/hydration parity is a HARD repo constraint** (§3 of the post-phase-D
-     handover): prerendered markup must equal the first client render. shadcn's sidebar
-     persists open/closed in a COOKIE and reads it on mount — precisely the shape that
-     produces a mismatch. Decide the SSR story before writing the component, not after
-     seeing a hydration warning.
-  2. **D5 is already breached and this makes it worse.** `main-*.js` is 96.6 kB gzipped
-     against < 80 kB. Importing `sidebar.tsx` pulls Base UI surface onto the landing
-     page — the page most likely to be a reader's first. Measure before and after; if
-     it moves the number materially, that is an argument for a hand-rolled rail rather
-     than the shadcn component.
-  3. **Mobile.** shadcn's sidebar becomes a Sheet below its breakpoint — a second Base
-     UI dialog, and a SECOND mobile nav pattern beside the header's. Decide whether the
-     rail exists at all below `sm` rather than inheriting an answer.
+  **`LessonRail` is rendered from inside `<header>`, and that is a constraint.** Guard h
+  caught the first shape — the rail as a grid column beside the header — with
+  `nav-outside-header`: §17 puts the primary nav in the header's subtree. It is
+  `position: fixed`, so where it sits in the DOM and where it is painted are two
+  different questions, and `.home-shell` pads the page out of its way with `:has()`
+  rather than a flag duplicating the rail's own empty-course condition.
 
-  **Two decisions the job must make, not inherit**
-  - **Landing page only, or LO pages too?** French's rail is on the landing page; its
-    LO pages use the top nav. Defaulting to both would be a choice nobody made.
-  - **Do the social links go in the rail?** French puts them there. This repo already
-    ships them in the FOOTER from `footer.config.ts`. The same links in two places is a
-    decision with a maintenance cost, not a freebie — and `footer.config.ts` is the one
-    source, so the rail must read from it rather than declaring its own list.
+  **A defect found on the way, fixed here.** A `transition` that lists `color` where
+  `color` is also declared in the base state from a token leaves the computed value
+  pinned to the OLD token when the theme swaps: measured, the rail's icons stayed
+  `#232830` on the dark rail (1.46:1) until the transition was removed, then snapped to
+  `#eceef1`. Both rail rules now transition only compositor-friendly properties, which
+  is the repo's own rule anyway. **`.footer-social-link` has the identical defect and is
+  NOT fixed here** — different component, different concern; its icons currently render
+  the light theme's colour on the dark footer.
 
-  **Verify:** both themes; 320 / 375 / 768 / 1024 / 1440 with no overflow; keyboard
-  reachable in natural tab order with focus visible; the rail's controls named; bundle
-  measured before and after; and the prerendered landing page byte-compared against the
-  first client render. Guard h renders `CourseHome` among its 26 documents, so landmark
-  and heading-order changes surface there.
+  **Verified:** both themes; 320 / 375 / 768 / 1024 / 1440 with no overflow and the rail
+  48px at x=0 in every one; prerender parity as above; Escape closes and restores focus
+  to the toggle; focus moves into the panel on open; Tab wraps last→first; scroll lock
+  on and off; `inert` keeps the closed panel's links out of the interactive tree;
+  targets 32px (toggle) and 28px (social), both clearing WCAG 2.2 SC 2.5.8's 24x24.
+  Suite 995 → 1003. Guard h green across its 26 documents.
 
 ---
 

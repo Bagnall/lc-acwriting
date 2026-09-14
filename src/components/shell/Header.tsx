@@ -170,7 +170,7 @@ export default function Header({
       </nav>
 
       {/* A DISCLOSURE, NOT A DIALOG — and the difference is the whole design.
-          `LessonSideNav` traps Tab, moves focus in, scroll-locks the page and uses
+          `LessonRail`'s panel traps Tab, moves focus in, scroll-locks the page and uses
           `inert`; this panel deliberately does NONE of that, and the two being
           compared as "inconsistent a11y" is comparing a dialog with a disclosure.
 
@@ -186,7 +186,7 @@ export default function Header({
             already walks into it. Forcing focus in is modal behaviour, and it would
             punish opening the menu and deciding not to use it.
           - NO scroll lock, for the same reason: nothing is covering the page.
-          - `hidden`, NOT `inert`. `LessonSideNav` needs `inert` because `hidden`
+          - `hidden`, NOT `inert`. `LessonRail`'s panel needs `inert` because `hidden`
             (`display: none`) cannot slide, and it animates. This panel does not, so
             `hidden` removes the links from the tree AND from focus order, which is
             the stronger guarantee of the two.

@@ -77,7 +77,7 @@ describe('Header', () => {
     expect(html).toMatch(/<div[^>]*id="mobile-nav-panel"[^>]*hidden/);
   });
 
-  // The panel is a DISCLOSURE, not a dialog. `LessonSideNav` is the dialog — it
+  // The panel is a DISCLOSURE, not a dialog. `LessonRail`'s panel is the dialog — it
   // covers the page, so it traps Tab, scroll-locks and uses `inert`. Copying that
   // here in the name of consistency would strand a keyboard user in a panel with a
   // live, visible page behind it. These two tests exist so that change has to be

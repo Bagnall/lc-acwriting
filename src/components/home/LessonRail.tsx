@@ -1,15 +1,40 @@
 /**
- * LessonSideNav — the left sliding lesson nav on the course landing page (Phase D).
+ * LessonRail — the landing page's permanent left rail (§D · D7).
  *
- * Ported from the French-Basic-2026 landing sidebar (decision C, 2026-08-06): it
- * lists EVERY LO in the course — a course-wide index, the same list the cards show —
- * not the current LO's sections. Section links stay the LO page's own header nav.
- * The reference's icon-collapsing desktop rail is deliberately not ported: it swaps
- * a rail for an overlay at a JS-measured breakpoint, which a prerendered page cannot
- * render identically before hydration. One off-canvas panel at every width instead —
- * one code path, one a11y story, identical server and client markup.
+ * REPLACES LessonSideNav, which it grew out of rather than sits beside: two overlapping
+ * nav mechanisms on one page is worse than either alone. The whole open-state behaviour
+ * below is that component's, carried across unchanged — see the a11y contract.
  *
- * A11Y CONTRACT (the bar the reference's docs set, plus this repo's shell rules):
+ * WHAT CHANGED, AND WHY. The nav used to be a "Lessons" button in the header, sitting
+ * BEFORE the course title, which reads as though the button were the page's subject. It
+ * is now a thin strip pinned to the left of the content, permanently visible, that
+ * expands into the same panel. Ported from french-lo-1's landing page
+ * (`page-shell/LandingPage/LandingPage.jsx`), including the collapsed strip's stack of
+ * social icons sitting partway down it.
+ *
+ * HAND-ROLLED, AND NOT shadcn's `Sidebar`, WHICH THIS REPO ALREADY VENDORS. Measured,
+ * not assumed: importing `@/components/ui/sidebar` in `collapsible="icon"` mode took
+ * main-*.js from 96.83 kB to 117.89 kB gzipped — +21.06 kB on a landing page whose
+ * budget is < 80 kB and which is already over it. The cost is its dependency fan-out
+ * (Sheet, Tooltip, Button, Input, Separator, Skeleton) rather than the rail itself.
+ * Two further problems came off with it:
+ *   - it persists open/closed in a COOKIE read on mount, and prerendered markup here
+ *     must equal the first client render (handover §3). Nothing below reads a cookie,
+ *     measures a viewport, or branches on `useIsHydrated`: the collapsed rail is static
+ *     markup, so server and client agree by construction.
+ *   - it swaps the rail for a Sheet at a JS-measured breakpoint, which is a second Base
+ *     UI dialog and a second mobile nav pattern beside the header's. LessonSideNav's own
+ *     header block recorded this as the reason the rail was not ported in Phase D; it is
+ *     hand-rolling, not D7, that answers it.
+ *
+ * ONE MECHANISM, TWO STATES. The rail is in flow and always there; expanding ALWAYS
+ * overlays, at every width. French's expanded sidebar pushes the content sideways, which
+ * would mean pushing on desktop and overlaying on mobile — and branching the focus trap
+ * and scroll lock on viewport needs `matchMedia`, i.e. exactly the JS-measured breakpoint
+ * above. Overlay everywhere is one code path and one a11y story. The panel covers the
+ * rail when open, so the social stack hides itself with no rule to say so.
+ *
+ * A11Y CONTRACT (inherited from LessonSideNav in full — the bar, not the baseline):
  *   - a real <button> with aria-expanded + aria-controls, and one <nav> landmark
  *   - Escape closes AND returns focus to the toggle
  *   - opening moves focus into the panel; closing restores it to the toggle
@@ -19,12 +44,15 @@
  *     `hidden`, which cannot slide (`display: none` kills the transition)
  *   - motion is CSS-only, so `prefers-reduced-motion` is honoured in home.css
  *
- * NO-JS: the panel renders closed and inert, and the toggle does nothing — inert but
- * harmless. Navigation with JavaScript off is the card grid, which is the whole list.
+ * NO-JS: the rail renders with its social links live and its panel closed and inert, and
+ * the toggle does nothing. Lesson navigation without JavaScript is the card grid, which
+ * is the whole list.
  */
 import { useEffect, useRef, useState } from 'react';
 import { MenuIcon, XIcon } from 'lucide-react';
+import { footerConfig } from '@/config/footer.config';
 import { resolveAsset } from '@/lib/assets';
+import { spriteHref } from '@/lib/sprite';
 import type { LoIndexEntry } from '@/lo/lo-index';
 import './home.css';
 
@@ -32,7 +60,7 @@ const PANEL_ID = 'lesson-nav-panel';
 /** Set on <html> while the panel is open; home.css locks scrolling off it. */
 const SCROLL_LOCK_CLASS = 'lesson-nav-open';
 
-interface LessonSideNavProps {
+interface LessonRailProps {
   /** Every LO in the course, in course order. */
   lessons: readonly LoIndexEntry[];
 }
@@ -42,7 +70,7 @@ function focusables(panel: HTMLElement): readonly HTMLElement[] {
   return [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')];
 }
 
-export default function LessonSideNav({ lessons }: LessonSideNavProps) {
+export default function LessonRail({ lessons }: LessonRailProps) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -99,22 +127,63 @@ export default function LessonSideNav({ lessons }: LessonSideNavProps) {
     };
   }, [isOpen]);
 
-  // A course with no LOs has no index to open. The cards say so instead.
+  // A course with no LOs has no index to open. The cards say so instead, and a rail
+  // holding nothing but social icons is not what this component is for.
   if (lessons.length === 0) return null;
 
   return (
     <>
-      <button
-        ref={toggleRef}
-        type="button"
-        aria-expanded={isOpen}
-        aria-controls={PANEL_ID}
-        onClick={() => setIsOpen((open) => !open)}
-        className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-      >
-        <MenuIcon className="size-4" aria-hidden="true" />
-        Lessons
-      </button>
+      {/* The strip itself: in flow, sticky to the top of the viewport as the grid
+          scrolls past it, and the page's left edge at every width down to 320. */}
+      <div className="lesson-rail">
+        <button
+          ref={toggleRef}
+          type="button"
+          aria-expanded={isOpen}
+          aria-controls={PANEL_ID}
+          onClick={() => setIsOpen((open) => !open)}
+          className="lesson-rail-toggle"
+        >
+          <MenuIcon className="size-5" aria-hidden="true" />
+          {/* Icon-only, so the name is visually hidden rather than absent — without
+              it the control announces as "button" and nothing else. */}
+          <span className="sr-only">Lessons</span>
+        </button>
+
+        {/* Social, as french has it: stacked, centred, sitting partway down the strip
+            rather than tucked under the toggle. `role="group"` and not a nav landmark —
+            spec §17 allows one per page and the panel below owns it.
+
+            ACCEPTED, NOT OVERLOOKED: these are the same five accounts the footer shows,
+            so each name is announced twice on this page. That is ordinary for chrome
+            repeated top and bottom, and the alternative — a rail that lists them from
+            its own array — is the drift `footer.config.ts` exists to prevent. The DATA
+            is single-sourced; only the markup differs, because a horizontal band on a
+            dark plate and a vertical strip on the page ground are not one component
+            with four class props. */}
+        {footerConfig.social.length === 0 ? null : (
+          <div className="lesson-rail-social" role="group" aria-label="Follow us">
+            {footerConfig.social.map((account) => (
+              <a
+                key={account.icon}
+                href={account.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="lesson-rail-social-link"
+              >
+                {/* The sprite's `brand-*` symbols are `fill="currentColor"`, so the
+                    icon follows the rail's text colour in both themes with no
+                    dark-mode rules — see FooterSocial.tsx for why that beats the
+                    reference's `<img>` + `filter: invert(1)`. */}
+                <svg className="lesson-rail-social-icon" aria-hidden="true" focusable="false">
+                  <use href={spriteHref(account.icon)} />
+                </svg>
+                <span className="sr-only">{account.label} (opens in a new tab)</span>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Backdrop: a click-to-close surface, and the dimming that says the panel is
           modal. Purely decorative — Escape and the close button are the accessible

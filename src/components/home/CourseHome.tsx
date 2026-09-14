@@ -19,6 +19,19 @@
  * link first, one <header>, one <main id="content" tabindex="-1">, one <h1>, and a
  * strict h1 → h2 → h3 outline (hero → "Lessons" → card titles). The one nav landmark
  * on this page is the lesson nav; there are no in-page sections to link to.
+ *
+ * THE LEFT RAIL STAYS INSIDE <header>, AND THAT IS A CONSTRAINT RATHER THAN A CHOICE
+ * (§D · D7). `LessonRail` used to be a "Lessons" button here, sitting BEFORE the course
+ * title — which reads as though the button were what the page is about. It is now a
+ * permanent strip down the left edge, but it is still rendered from inside this header,
+ * because §17 puts the page's primary nav in the header's subtree and guard h enforces
+ * it. The strip is `position: fixed`, so where it sits in the DOM and where it is
+ * painted are two different questions; `.home-shell` pads the page out of its way.
+ *
+ * That works only because this header is NOT backdrop-blurred — a `backdrop-filter`
+ * would make it the containing block for its fixed descendants and pin both the strip
+ * and the panel inside the bar. The note below has always said so; D7 is what makes it
+ * load-bearing.
  */
 import { courseConfig } from '@/config/course.config';
 import { headingId } from '@/lib/headingId';
@@ -26,7 +39,7 @@ import BackToTopButton from '@/components/shell/BackToTopButton';
 import Footer from '@/components/shell/Footer';
 import ThemeToggle from '@/components/shell/ThemeToggle';
 import type { LoIndexEntry } from '@/lo/lo-index';
-import LessonSideNav from './LessonSideNav';
+import LessonRail from './LessonRail';
 import LoCard from './LoCard';
 import './home.css';
 
@@ -46,62 +59,72 @@ export default function CourseHome({ lessons }: CourseHomeProps) {
         Skip to main content
       </a>
 
-      {/* Deliberately NOT sticky and NOT backdrop-blurred, unlike the LO page header:
-          a `backdrop-filter` makes an element the containing block for its fixed
-          descendants, which would trap the sliding panel inside this bar. */}
-      <header className="border-b border-border bg-background">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-          <LessonSideNav lessons={lessons} />
-          {/* The brand is plain text here: this IS the page it would link to. */}
-          <p className="mr-auto font-heading text-lg font-semibold tracking-tight text-foreground">
-            {courseConfig.courseTitle}
-          </p>
-          <ThemeToggle />
-        </div>
-      </header>
-
-      <main id="content" tabIndex={-1} className="mx-auto max-w-6xl px-4 focus:outline-none">
-        <div className="home-hero">
-          <h1 className="home-hero-heading">{courseConfig.landingCopy.heading}</h1>
-          {courseConfig.landingCopy.subheading === undefined ? null : (
-            <p className="home-hero-subheading">{courseConfig.landingCopy.subheading}</p>
-          )}
-        </div>
-
-        <section aria-labelledby={LESSONS_HEADING_ID} className="pb-12">
-          <h2
-            id={LESSONS_HEADING_ID}
-            className="font-heading text-2xl font-semibold text-foreground"
-          >
-            Lessons
-          </h2>
-
-          {lessons.length === 0 ? (
-            // An honest empty state: a course mid-authoring has no cards, and saying
-            // so beats an empty grid that reads as a broken page.
-            <p className="mt-4 text-muted-foreground">
-              This course has no lessons yet. Add a folder under <code>lo-config/</code> and it
-              appears here.
+      <div className="home-shell">
+        {/* Deliberately NOT sticky and NOT backdrop-blurred, unlike the LO page header:
+            a `backdrop-filter` makes an element the containing block for its fixed
+            descendants, which would trap the rail and the sliding panel inside this
+            bar. LessonRail is a child of this element for §17's sake, not for
+            layout's — it paints itself against the viewport edge. */}
+        <header className="border-b border-border bg-card">
+          <LessonRail lessons={lessons} />
+          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+            {/* The brand is plain text here: this IS the page it would link to. */}
+            <p className="mr-auto font-heading text-lg font-semibold tracking-tight text-foreground">
+              {courseConfig.courseTitle}
             </p>
-          ) : (
-            <>
-              <ul className="home-card-grid">
-                {lessons.map((lesson, index) => (
-                  <LoCard key={lesson.folder} lesson={lesson} index={index} />
-                ))}
-              </ul>
-              {/* §D · D2, and only in this branch: the zero-lesson state is a
-                  single honest sentence, so a back-to-top under it would be
-                  absurd. The case here is stronger than on an LO page — this
-                  header is deliberately not sticky, so nothing follows the
-                  reader down a long grid. */}
-              <BackToTopButton sectionId="lessons" />
-            </>
-          )}
-        </section>
-      </main>
+            <ThemeToggle />
+          </div>
+        </header>
 
-      <Footer />
+        <main
+          id="content"
+          tabIndex={-1}
+          className="mx-auto w-full max-w-6xl px-4 focus:outline-none"
+        >
+          <div className="home-hero">
+            <h1 className="home-hero-heading">{courseConfig.landingCopy.heading}</h1>
+            {courseConfig.landingCopy.subheading === undefined ? null : (
+              <p className="home-hero-subheading">{courseConfig.landingCopy.subheading}</p>
+            )}
+          </div>
+
+          <section aria-labelledby={LESSONS_HEADING_ID} className="pb-12">
+            <h2
+              id={LESSONS_HEADING_ID}
+              className="font-heading text-2xl font-semibold text-foreground"
+            >
+              Lessons
+            </h2>
+
+            {lessons.length === 0 ? (
+              // An honest empty state: a course mid-authoring has no cards, and saying
+              // so beats an empty grid that reads as a broken page.
+              <p className="mt-4 text-muted-foreground">
+                This course has no lessons yet. Add a folder under <code>lo-config/</code> and it
+                appears here.
+              </p>
+            ) : (
+              <>
+                <ul className="home-card-grid">
+                  {lessons.map((lesson, index) => (
+                    <LoCard key={lesson.folder} lesson={lesson} index={index} />
+                  ))}
+                </ul>
+                {/* §D · D2, and only in this branch: the zero-lesson state is a
+                    single honest sentence, so a back-to-top under it would be
+                    absurd. The case here is stronger than on an LO page — this
+                    header is deliberately not sticky, so nothing follows the
+                    reader down a long grid. */}
+                <BackToTopButton sectionId="lessons" />
+              </>
+            )}
+          </section>
+        </main>
+
+        {/* Inside the shell, not after it: the rail is fixed and full-height, so a
+            footer outside this padding would run underneath it. */}
+        <Footer />
+      </div>
     </>
   );
 }
