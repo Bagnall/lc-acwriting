@@ -6,6 +6,13 @@
  * static lesson instructions are not an announcement, so using it would be wrong
  * semantics. The `instructions` class is the stable hook the section- and
  * accordion-level instruction slots both reuse (§3: one field, one name).
+ *
+ * `mt-2` is on the PRIMITIVE, not on each caller, because every instructions box
+ * wants the same breathing room above it — inside an accordion the body has no top
+ * padding, so without this the callout butts straight against the summary and the
+ * summary's hover highlight runs right into it. A caller that needs different spacing
+ * passes its own `mt-*`: `cn()` is tailwind-merge, so the caller's class wins rather
+ * than both landing in the list.
  */
 import type { ReactNode } from 'react';
 import { InfoIcon } from 'lucide-react';
@@ -20,7 +27,7 @@ export default function InstructionsCallout({ children, className }: Instruction
   return (
     <div
       className={cn(
-        'instructions flex items-start gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground',
+        'instructions mt-2 flex items-start gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground',
         className,
       )}
     >
