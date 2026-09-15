@@ -9,7 +9,7 @@ session, on either machine.
 | `LC_BASE_TEMPLATE_BUILD_HANDOVER.md`  | the numbered buildlist + tick history (steps 1–34)         |
 | `2026-08-06-post-phase-d-handover.md` | state snapshot at end of Phase D, plus the §5 decision log |
 
-**Last updated:** 2026-09-14 · **HEAD:** see `git log` · **Suite:** 99 files · 1008 tests green
+**Last updated:** 2026-09-14 · **HEAD:** see `git log` · **Suite:** 100 files · 1025 tests green
 · CI green · `main` unprotected by decision (job E1).
 
 Non-negotiable constraints for every job below live in
@@ -551,6 +551,45 @@ course, and adding collaborators does not fix it. Branch protection is now §E.
   saving is contingent on those files staying unused: the moment one is imported, its
   `@source not` line silently strips utilities the live component needs, which fails as
   missing styles rather than as an error.
+
+  ### D5 — APPLIED 2026-09-15, `94a3341`, with the guard. CSS half closed.
+
+  Both caveats above were answered by taking the guarded option: eleven `@source not`
+  lines in `src/index.css`, and `src/build/source-negation.test.ts` pinning the list
+  against the real import graph. **CSS 124.33 kB raw / 20.97 kB gzipped → 82.47 /
+  15.69.** JS unchanged at 97.13 kB. `DEBUG=1 bun run build` clean too, so no debug page
+  reaches a negated wrapper. Suite 1008 → 1025; **`bun run guards` still 214**, because
+  the check is in `src/build/` — that glob means the eight spec guards, and a staleness
+  check over a config list is not one, the same call that put docs-freshness in
+  `src/docs/`.
+
+  **Against the < 15 kB budget: 5.97 kB over becomes 0.69 kB over.** The breach is NOT
+  closed and stays open on this row. What changed is its size and its character — the
+  remaining gap is in utilities the live components actually use, so the next 0.69 kB
+  costs design decisions, not deletions.
+
+  **0.22 kB raw of the predicted saving did not arrive**, and the honest reading is that
+  the measurement predicted 82.25 and the build produced 82.47. The likely cause is that
+  the two new files are themselves under `src/` and so are in Tailwind's scan — INFERRED,
+  not measured. It is 20 bytes gzipped and was not worth another build to confirm.
+
+  **The guard caught two faults in its own walk before it ever ran green**, which is the
+  argument for writing it first. It read import statements out of its own test's fixture
+  STRINGS — `sidebar` went live off a fixture and took four wrappers with it
+  transitively — and it would have read an import out of a COMMENT, since
+  `LessonRail.tsx` names `@/components/ui/sidebar` in the §D7 rejection note. Today that
+  note uses backticks and slips past a quote-anchored match; a reworded one would not.
+  Both are pinned by their own cases now, and comments are stripped with guard c's
+  existing stripper rather than a second copy. **Guards c, f, g and now this make four
+  checks in a row whose correctness turned on stripping comments first.**
+
+  **Both directions were planted and observed failing before the commit** — an import of
+  a negated wrapper, and a deleted negation line — each firing with the file named.
+
+  **One placement bug worth keeping.** The directives first went in after the Tailwind
+  imports but BEFORE the font and token ones, which CSS treats as invalidating every
+  later `@import`. Stylelint's `no-invalid-position-at-import-rule` caught it. The block
+  now sits below the last import, and `index.css`'s own header already warned about this.
 
   **One lead in the residual, NOT a recommendation.** `@font-face` is 13 faces / 2
   families — inside the two-family rule — but ten are Open Sans unicode-range subsets:
