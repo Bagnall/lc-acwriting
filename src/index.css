@@ -15,6 +15,31 @@
 @import './styles/palette.css';
 @import './styles/tokens.css';
 
+/* Vendored shadcn wrappers that nothing imports, kept out of Tailwind's SCAN.
+   Rollup already excludes them from the JS bundle by following the import graph, but
+   Tailwind v4 auto-detects its sources and reads files off DISK — so an unimported
+   wrapper still emitted every utility its class strings mention. Measured at §D5:
+   5.30 kB gzipped of CSS that styled nothing, a quarter of the whole stylesheet.
+   `@source not` removes the path from the scan while leaving the file on disk, so the
+   wrappers stay where `shadcn` expects them and cost nothing until something uses one.
+
+   DELETE A LINE TO WAKE ITS COMPONENT UP. Leaving a line here while importing the file
+   is the failure mode worth knowing: Tailwind emits no utilities for it, the build and
+   the suite both stay green, and the component renders unstyled in a browser. Nothing
+   errors. `src/build/source-negation.test.ts` exists to turn that into a red test — it
+   walks the real import graph and fails if this list and reality disagree either way. */
+@source not "./components/ui/badge.tsx";
+@source not "./components/ui/card.tsx";
+@source not "./components/ui/label.tsx";
+@source not "./components/ui/navigation-menu.tsx";
+@source not "./components/ui/separator.tsx";
+@source not "./components/ui/sheet.tsx";
+@source not "./components/ui/sidebar.tsx";
+@source not "./components/ui/skeleton.tsx";
+@source not "./components/ui/tabs.tsx";
+@source not "./components/ui/textarea.tsx";
+@source not "./components/ui/tooltip.tsx";
+
 /* Feijoa = official Cambridge display font (headings/titles). COMMERCIAL (Klim) —
    spec §12 / decision #18: the font files are NEVER committed. public/fonts/feijoa/
    is git-ignored and populated per Cambridge deploy only. Until then these files are
