@@ -87,6 +87,13 @@ function NavLinks({
   );
 }
 
+/**
+ * The most nav entries that fit inline beside the brand and theme toggle at the
+ * header's max width. A page with more sections uses the menu at EVERY width, instead
+ * of an inline row that overflows sideways and pushes the theme toggle off-screen.
+ */
+export const MAX_INLINE_NAV_ITEMS = 6;
+
 export default function Header({
   sections,
   activeSectionId,
@@ -95,6 +102,8 @@ export default function Header({
 }: HeaderProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  // Literal class strings so Tailwind's scanner sees every variant.
+  const menuOnly = sections.length > MAX_INLINE_NAV_ITEMS;
 
   // Escape closes the mobile panel and returns focus to the toggle (spec §5).
   useEffect(() => {
@@ -151,7 +160,7 @@ export default function Header({
         <NavLinks
           sections={sections}
           activeSectionId={activeSectionId}
-          className="hidden items-center gap-1 sm:flex"
+          className={menuOnly ? 'hidden' : 'hidden items-center gap-1 sm:flex'}
         />
 
         {themeToggle}
@@ -163,7 +172,11 @@ export default function Header({
           aria-controls={MOBILE_PANEL_ID}
           aria-label="Toggle navigation menu"
           onClick={() => setIsMobileNavOpen((open) => !open)}
-          className="inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:hidden"
+          className={
+            menuOnly
+              ? 'inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none'
+              : 'inline-flex size-9 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:hidden'
+          }
         >
           <Menu className="size-5" aria-hidden="true" />
         </button>
@@ -196,7 +209,7 @@ export default function Header({
       <div
         id={MOBILE_PANEL_ID}
         hidden={!isMobileNavOpen}
-        className="border-t border-border sm:hidden"
+        className={menuOnly ? 'border-t border-border' : 'border-t border-border sm:hidden'}
       >
         <NavLinks
           sections={sections}

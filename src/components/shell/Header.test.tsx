@@ -9,7 +9,7 @@
  */
 import { describe, expect, test } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import Header from './Header';
+import Header, { MAX_INLINE_NAV_ITEMS } from './Header';
 import { resolveHomeHref } from '@/lib/assets';
 import type { NavSection } from './nav-section';
 /** Local section fixture. Sections come from an LO's lo.json in the real app; these
@@ -127,5 +127,26 @@ describe('Header', () => {
       <Header sections={SECTIONS} themeToggle={<span data-testid="toggle-slot" />} />,
     );
     expect(html).toContain('data-testid="toggle-slot"');
+  });
+});
+
+describe('Header — a long section list', () => {
+  const many: NavSection[] = Array.from({ length: MAX_INLINE_NAV_ITEMS + 1 }, (_, index) => ({
+    id: `s${index}`,
+    label: `Section ${index}`,
+  }));
+
+  test('up to the cap, the inline nav shows from sm and the menu button hides', () => {
+    const html = renderToStaticMarkup(<Header sections={many.slice(0, MAX_INLINE_NAV_ITEMS)} />);
+    expect(html).toContain('sm:flex');
+    expect(html).toContain('sm:hidden');
+  });
+
+  test('past the cap, the menu is used at every width', () => {
+    const html = renderToStaticMarkup(<Header sections={many} />);
+    expect(html).not.toContain('sm:flex');
+    expect(html).not.toContain('sm:hidden');
+    // Every entry is still reachable through the menu panel.
+    for (const section of many) expect(html).toContain(`href="#${section.id}"`);
   });
 });
