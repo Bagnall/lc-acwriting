@@ -149,7 +149,9 @@ export function authoredAssetPaths(repoRoot: string): AuthoredAsset[] {
   const authored: AuthoredAsset[] = [];
 
   for (const file of loConfigFiles(repoRoot)) {
-    const source = path.relative(repoRoot, file);
+    // POSIX separators: `source` is documented as a repo-relative path, and on Windows
+    // `path.relative` returns backslashes, which broke every `lo-config/` prefix check.
+    const source = path.relative(repoRoot, file).split(path.sep).join('/');
     const parsed: unknown = JSON.parse(readFileSync(file, 'utf-8'));
     for (const value of collectAssetPaths(parsed)) authored.push({ source, value });
   }
