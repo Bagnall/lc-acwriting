@@ -13,7 +13,7 @@
       "blocks": ["02-video"]
     },
     {
-      "id": "content",
+      "id": "content-section",
       "label": "Content",
       "blocks": ["03-video"]
     },
