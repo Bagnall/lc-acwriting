@@ -51,7 +51,6 @@ const raw = {
   languageCode: 'en',
   landingCopy: {
     heading: 'Looking Behind the Writing',
-    subheading: 'The thinking, structure and style behind good academic writing',
   },
   logo: 'logo.svg',
   favicon: 'favicon.svg',

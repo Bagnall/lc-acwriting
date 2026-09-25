@@ -1,12 +1,14 @@
 {
   "type": "video",
-  "title": "Clarity",
+  "presentation": "plain",
   "content": {
     "video": {
       "src": "video/lo-01-looking-behind-the-writing/11-video.mp4",
       "label": "",
-      "aspectRatio": "484 / 300"
+      "aspectRatio": "624 / 720"
     },
-    "text": ["Further reading: W. Booth et al., <em>The Craft of Research</em>."]
+    "text": [
+      "The Rule of Three is a writing principle that suggests that a trio of components is the most effective format of execution.In its simplest form, this is merely beginning, middle, and end, from Aristotle’s Poetics. Another Aristotelian trio are the modes of persuasion, often referred to as rhetorical appeals. These are ethos, pathos and logos."
+    ]
   }
 }

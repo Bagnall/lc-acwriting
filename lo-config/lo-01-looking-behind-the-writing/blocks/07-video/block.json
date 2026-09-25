@@ -1,12 +1,14 @@
 {
   "type": "video",
-  "title": "Paragraphing",
+  "presentation": "plain",
   "content": {
     "video": {
       "src": "video/lo-01-looking-behind-the-writing/07-video.mp4",
       "label": "",
-      "aspectRatio": "828 / 640"
+      "aspectRatio": "456 / 480"
     },
-    "text": ["Further reading: John B. Lord, <em>The Paragraph: Structure and Style</em>."]
+    "text": [
+      "Postgraduate study is at the apex of Bloom’s revised taxonomy of learning domains, focussing on the higher order thinking skill of knowledge creation."
+    ]
   }
 }

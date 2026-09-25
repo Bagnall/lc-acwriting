@@ -1,30 +1,66 @@
 {
   "title": "Looking Behind the Writing",
-  "description": "Twelve ideas behind good academic writing — thinking, structure and style — each with a short animation and a quotation from the literature.",
   "image": "images/lo-01-looking-behind-the-writing/card.png",
   "sections": [
     {
-      "id": "introduction",
-      "label": "Introduction",
-      "blocks": ["00-intro"]
+      "id": "clarity",
+      "label": "Clarity",
+      "blocks": ["01-video"]
     },
     {
-      "id": "thinking",
-      "label": "Thinking and knowledge",
-      "navLabel": "Thinking",
-      "blocks": ["01-video", "02-video", "03-video", "04-video"]
+      "id": "written-style",
+      "label": "Written Style",
+      "blocks": ["02-video"]
+    },
+    {
+      "id": "content",
+      "label": "Content",
+      "blocks": ["03-video"]
+    },
+    {
+      "id": "paragraphing",
+      "label": "Paragraphing",
+      "blocks": ["04-video"]
+    },
+    {
+      "id": "tight-chain-of-reasoning",
+      "label": "Tight Chain of Reasoning",
+      "blocks": ["05-video"]
+    },
+    {
+      "id": "argumentation",
+      "label": "Argumentation",
+      "blocks": ["06-video"]
+    },
+    {
+      "id": "knowledge-creation",
+      "label": "Knowledge Creation",
+      "blocks": ["07-video"]
+    },
+    {
+      "id": "critical-thinking",
+      "label": "Critical Thinking",
+      "blocks": ["08-video"]
+    },
+    {
+      "id": "complex-cognitive-process",
+      "label": "Complex Cognitive Process",
+      "blocks": ["09-video"]
+    },
+    {
+      "id": "monological",
+      "label": "Monological",
+      "blocks": ["10-video"]
+    },
+    {
+      "id": "rule-of-three",
+      "label": "Rule of Three",
+      "blocks": ["11-video"]
     },
     {
       "id": "structure",
-      "label": "Structure and argument",
-      "navLabel": "Structure",
-      "blocks": ["05-video", "06-video", "07-video", "08-video"]
-    },
-    {
-      "id": "style",
-      "label": "Voice and style",
-      "navLabel": "Style",
-      "blocks": ["09-video", "10-video", "11-video", "12-video"]
+      "label": "Structure",
+      "blocks": ["12-video"]
     }
   ]
 }

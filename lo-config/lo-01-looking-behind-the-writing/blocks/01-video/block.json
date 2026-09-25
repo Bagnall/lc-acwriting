@@ -1,14 +1,14 @@
 {
   "type": "video",
-  "title": "Knowledge creation",
+  "presentation": "plain",
   "content": {
     "video": {
       "src": "video/lo-01-looking-behind-the-writing/01-video.mp4",
-      "label": "",
-      "aspectRatio": "456 / 480"
+      "label": "‘If you write unclearly, many will question how clearly you think.’",
+      "aspectRatio": "484 / 300"
     },
-    "text": [
-      "Postgraduate study is at the apex of Bloom’s revised taxonomy of learning domains, focussing on the higher order thinking skill of knowledge creation."
-    ]
+    "quote": {
+      "source": "W. Booth et.al., The Craft of Research"
+    }
   }
 }

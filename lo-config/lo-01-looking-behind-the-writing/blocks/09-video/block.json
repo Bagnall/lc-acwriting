@@ -1,15 +1,15 @@
 {
   "type": "video",
-  "title": "A monological voice",
+  "presentation": "plain",
   "content": {
     "video": {
       "src": "video/lo-01-looking-behind-the-writing/09-video.mp4",
       "label": "",
-      "aspectRatio": "528 / 480"
+      "aspectRatio": "564 / 720"
     },
     "quote": {
-      "text": "‘What do the argumentative text-types and genres used in the academy have in common? […] First, they all use a single authorial voice. This may seem obvious, but it is important when you consider that the talk and discussion that often prefigures the writing of an assignment is usually multi-voiced. Students often find it difficult to transfer the dialogic, multi-voiced nature of discussion and debate into the monologic form of the written argumentative assignment.’",
-      "source": "R. Andrews, <em>Argumentation, Critical Thinking and the Postgraduate Dissertation</em>"
+      "text": "’[…] the three basic cognitive processes of writing (planning, composing and revising). […] Kellogg adopted the term ‘central executive’ to describe a similar cognitive managing mechanism in his model of writing. […] because the writing process is demanding and complex, and because a writer cannot do everything at once, the theory is that the monitor or central executive blocks off certain processes and facilitates attention on others at any one time.’",
+      "source": "Ronald T. Kellogg, A model of working memory in writing"
     }
   }
 }
