@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "Argumentation",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/04-video.mp4",
+      "label": "",
+      "aspectRatio": "864 / 712"
+    },
+    "quote": {
+      "text": "‘Research is the answering of a justified question as an argument supported by evidence.’",
+      "source": "W. Booth et al., <em>The Craft of Research</em>"
+    }
+  }
+}

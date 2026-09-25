@@ -45,13 +45,13 @@ const CourseConfigSchema = z.object({
 /** Type is INFERRED from the schema — one source of truth, never drifts apart. */
 export type CourseConfig = z.infer<typeof CourseConfigSchema>;
 
-/** The actual course values (out-of-box example: a Cambridge Spanish course). */
+/** The actual course values: the Language Centre's Academic Writing resource. */
 const raw = {
-  courseTitle: 'Cambridge Spanish — Level 1',
-  languageCode: 'es',
+  courseTitle: 'Academic Writing',
+  languageCode: 'en',
   landingCopy: {
-    heading: 'Bienvenido',
-    subheading: 'Start your Spanish journey',
+    heading: 'Looking Behind the Writing',
+    subheading: 'The thinking, structure and style behind good academic writing',
   },
   logo: 'logo.svg',
   favicon: 'favicon.svg',

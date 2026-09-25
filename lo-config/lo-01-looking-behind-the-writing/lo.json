@@ -1,0 +1,30 @@
+{
+  "title": "Looking Behind the Writing",
+  "description": "Twelve ideas behind good academic writing — thinking, structure and style — each with a short animation and a quotation from the literature.",
+  "image": "images/lo-01-looking-behind-the-writing/card.png",
+  "sections": [
+    {
+      "id": "introduction",
+      "label": "Introduction",
+      "blocks": ["00-intro"]
+    },
+    {
+      "id": "thinking",
+      "label": "Thinking and knowledge",
+      "navLabel": "Thinking",
+      "blocks": ["01-video", "02-video", "03-video", "04-video"]
+    },
+    {
+      "id": "structure",
+      "label": "Structure and argument",
+      "navLabel": "Structure",
+      "blocks": ["05-video", "06-video", "07-video", "08-video"]
+    },
+    {
+      "id": "style",
+      "label": "Voice and style",
+      "navLabel": "Style",
+      "blocks": ["09-video", "10-video", "11-video", "12-video"]
+    }
+  ]
+}

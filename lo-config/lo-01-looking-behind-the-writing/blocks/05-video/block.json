@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "Structure",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/05-video.mp4",
+      "label": "",
+      "aspectRatio": "1120 / 720"
+    },
+    "quote": {
+      "text": "‘What do the argumentative text-types and genres used in the academy have in common? […] they must have a logical or quasi-logical structural momentum: one idea or paragraph must lead to another or have some clearly defined connection to it. The horizontal articulation of the written assignment must be as strong as the vertical programming of the ideas within it.’",
+      "source": "R. Andrews, <em>Argumentation, Critical Thinking and the Postgraduate Dissertation</em>"
+    }
+  }
+}

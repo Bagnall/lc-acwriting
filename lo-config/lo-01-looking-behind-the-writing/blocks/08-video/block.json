@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "Tight chain of reasoning",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/08-video.mp4",
+      "label": "",
+      "aspectRatio": "1280 / 432"
+    },
+    "quote": {
+      "text": "‘Because content is the most important feature of communication, it is crucial to use explicit markers in linking a topic from one sentence to the next sentence. This kind of causal chain is explicit and deductive in which the link of one idea latches onto the link of the next idea […] tight chain of reasoning.’",
+      "source": "Matthew McCool, <em>Writing Around the World</em>"
+    }
+  }
+}

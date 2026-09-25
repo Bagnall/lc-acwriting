@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "Complex cognition",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/03-video.mp4",
+      "label": "",
+      "aspectRatio": "564 / 720"
+    },
+    "quote": {
+      "text": "‘[…] the three basic cognitive processes of writing (planning, composing and revising). […] Kellogg adopted the term ‘central executive’ to describe a similar cognitive managing mechanism in his model of writing. […] because the writing process is demanding and complex, and because a writer cannot do everything at once, the theory is that the monitor or central executive blocks off certain processes and facilitates attention on others at any one time.’",
+      "source": "Ronald T. Kellogg, <em>A Model of Working Memory in Writing</em>"
+    }
+  }
+}

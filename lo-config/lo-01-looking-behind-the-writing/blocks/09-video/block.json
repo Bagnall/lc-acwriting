@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "A monological voice",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/09-video.mp4",
+      "label": "",
+      "aspectRatio": "528 / 480"
+    },
+    "quote": {
+      "text": "‘What do the argumentative text-types and genres used in the academy have in common? […] First, they all use a single authorial voice. This may seem obvious, but it is important when you consider that the talk and discussion that often prefigures the writing of an assignment is usually multi-voiced. Students often find it difficult to transfer the dialogic, multi-voiced nature of discussion and debate into the monologic form of the written argumentative assignment.’",
+      "source": "R. Andrews, <em>Argumentation, Critical Thinking and the Postgraduate Dissertation</em>"
+    }
+  }
+}

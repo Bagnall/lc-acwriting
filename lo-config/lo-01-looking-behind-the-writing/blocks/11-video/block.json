@@ -1,0 +1,12 @@
+{
+  "type": "video",
+  "title": "Clarity",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/11-video.mp4",
+      "label": "",
+      "aspectRatio": "484 / 300"
+    },
+    "text": ["Further reading: W. Booth et al., <em>The Craft of Research</em>."]
+  }
+}

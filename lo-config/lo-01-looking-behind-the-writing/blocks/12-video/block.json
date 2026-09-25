@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "Content",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/12-video.mp4",
+      "label": "",
+      "aspectRatio": "548 / 480"
+    },
+    "quote": {
+      "text": "‘[…] the examiners must satisfy themselves that the dissertation: […] takes due account of previously published work on the subject; represents a significant contribution to learning, for example through the discovery of new knowledge, the connection of previously unrelated facts, the development of a new theory, or the revision of older views.’",
+      "source": "University of Cambridge"
+    }
+  }
+}

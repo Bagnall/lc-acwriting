@@ -1,0 +1,12 @@
+{
+  "type": "video",
+  "title": "Paragraphing",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/07-video.mp4",
+      "label": "",
+      "aspectRatio": "828 / 640"
+    },
+    "text": ["Further reading: John B. Lord, <em>The Paragraph: Structure and Style</em>."]
+  }
+}

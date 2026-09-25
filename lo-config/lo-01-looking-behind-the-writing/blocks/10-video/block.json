@@ -1,0 +1,15 @@
+{
+  "type": "video",
+  "title": "Written style",
+  "content": {
+    "video": {
+      "src": "video/lo-01-looking-behind-the-writing/10-video.mp4",
+      "label": "",
+      "aspectRatio": "1000 / 720"
+    },
+    "quote": {
+      "text": "‘Some students think that their writing style is merely cosmetic: What’s important are their ideas, not their words. But that assumes that readers are willing to slog through murky words to find ideas. In fact, few of us have the time or patience to do that. Worse, many of us believe that the quality of your writing reflects the quality of your mind.’",
+      "source": "W. Booth et al., <em>The Craft of Research</em>"
+    }
+  }
+}
