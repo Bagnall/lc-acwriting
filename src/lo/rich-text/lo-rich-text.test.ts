@@ -18,6 +18,8 @@ import { listLoSlugs, loadLo } from '../load-lo-disk';
 import { TextBlockContentSchema } from '../blocks/text-block-schema';
 import { collectAudioPaths, collectModalTargets } from './rich-text-nodes';
 import type { RichTextNode } from './rich-text-nodes';
+import type { AssembledLo } from '../assemble-lo';
+import { loadExampleLo } from '@/test-fixtures/example-lo';
 
 const PUBLIC_DIR = path.resolve(import.meta.dirname, '../../../public');
 
@@ -29,9 +31,7 @@ const RICH_TEXT_BLOCK_TYPES = new Set(['prose', 'grammar']);
  * loader) and from its rich-text blocks (parsed here through the same schema the
  * renderer uses, so this sees exactly what the page will).
  */
-function richTextOf(slug: string): readonly (readonly RichTextNode[])[] {
-  const lo = loadLo(slug);
-
+function richTextOf(lo: AssembledLo): readonly (readonly RichTextNode[])[] {
   const fromModals = Object.values(lo.modals).flatMap((modal) => modal.content);
 
   const fromBlocks = lo.sections
@@ -40,7 +40,7 @@ function richTextOf(slug: string): readonly (readonly RichTextNode[])[] {
     .flatMap(({ ref, config }) => {
       const result = TextBlockContentSchema.safeParse(config.content);
       if (!result.success) {
-        throw new Error(`lo-config/${slug}/blocks/${ref}/block.json has invalid rich text`);
+        throw new Error(`lo-config/${lo.slug}/blocks/${ref}/block.json has invalid rich text`);
       }
       return result.data.text;
     });
@@ -57,7 +57,7 @@ describe('every LO', () => {
 
   test.each(SLUGS)('%s: every modal link resolves to a declared modal', (slug) => {
     const declared = Object.keys(loadLo(slug).modals);
-    const targets = richTextOf(slug).flatMap(collectModalTargets);
+    const targets = richTextOf(loadLo(slug)).flatMap(collectModalTargets);
 
     targets.forEach((target) => {
       expect(declared, `${slug} links to modal "${target}" but does not declare it`).toContain(
@@ -67,7 +67,7 @@ describe('every LO', () => {
   });
 
   test.each(SLUGS)('%s: every audio path is namespaced under audio/<slug>/', (slug) => {
-    richTextOf(slug)
+    richTextOf(loadLo(slug))
       .flatMap(collectAudioPaths)
       .forEach((soundFile) => {
         expect(soundFile).toMatch(new RegExp(`^audio/${slug}/`));
@@ -75,7 +75,7 @@ describe('every LO', () => {
   });
 
   test.each(SLUGS)('%s: every audio path resolves to a real file in public/', (slug) => {
-    richTextOf(slug)
+    richTextOf(loadLo(slug))
       .flatMap(collectAudioPaths)
       .forEach((soundFile) => {
         const absolute = path.join(PUBLIC_DIR, soundFile);
@@ -84,17 +84,18 @@ describe('every LO', () => {
   });
 });
 
+// The template's example LO, kept as a test fixture (src/test-fixtures/example-lo.ts).
 describe('the example LO specifically', () => {
   test('declares a modal and links to it from block prose, so the popup is reachable', () => {
-    const lo = loadLo('lo-00-example');
+    const lo = loadExampleLo();
     expect(Object.keys(lo.modals)).toContain('example-popup');
 
-    const targets = richTextOf('lo-00-example').flatMap(collectModalTargets);
+    const targets = richTextOf(lo).flatMap(collectModalTargets);
     expect(targets).toContain('example-popup');
   });
 
   test('the modal carries an audio icon, not only text', () => {
-    const modal = loadLo('lo-00-example').modals['example-popup'];
+    const modal = loadExampleLo().modals['example-popup'];
     expect(modal.content.flatMap(collectAudioPaths).length).toBeGreaterThan(0);
   });
 });

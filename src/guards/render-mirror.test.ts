@@ -5,6 +5,7 @@
  * caught; the sweep at the bottom then asserts the real repo is clean. A guard whose
  * failure nobody has watched may simply be asleep.
  */
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
@@ -17,9 +18,11 @@ import {
   referencedRefs,
 } from './render-mirror';
 import type { LoStructure } from './render-mirror';
+import { EXAMPLE_LO_DIR } from '@/test-fixtures/example-lo';
 
-const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
-const EXAMPLE_DIR = path.join(REPO_ROOT, 'lo-config/lo-00-example');
+// The template's example LO, kept as a test fixture (src/test-fixtures/example-lo.ts):
+// the one LO on disk with every part kind, so presentParts is proven against all three.
+const EXAMPLE_DIR = EXAMPLE_LO_DIR;
 
 /** A structure with nothing in it, to be spread over with just the case under test. */
 const emptyStructure = (folder = 'lo-00-example'): LoStructure => ({
@@ -190,16 +193,26 @@ describe('the repo itself obeys guard b', () => {
   // If the manifest is reshaped — `sections` renamed, `blocks[]` restructured — the
   // collector would find nothing and this guard would pass by doing nothing at all.
   // These floors make a reshape fail loudly instead of switching the guard off.
+  //
+  // A course need not use every kind (this one has no exercises or modals), so the
+  // repo floor is "found LOs and blocks", and the per-kind floor runs against the
+  // example fixture, which has all three.
   it('found LOs, sections’ refs and folders to compare (the readers have not gone stale)', () => {
     expect(PART_KINDS.length).toBe(3);
     expect(structures.length).toBeGreaterThan(0);
+    expect(structures.flatMap((lo) => lo.referenced.blocks).length).toBeGreaterThan(0);
+    expect(structures.flatMap((lo) => lo.present.blocks).length).toBeGreaterThan(0);
+
+    const manifest: unknown = JSON.parse(readFileSync(path.join(EXAMPLE_DIR, 'lo.json'), 'utf-8'));
+    const referenced = referencedRefs(manifest);
+    const present = presentParts(EXAMPLE_DIR);
     for (const kind of PART_KINDS) {
       expect(
-        structures.flatMap((lo) => lo.referenced[kind]).length,
-        `no ${kind} refs found in any manifest — has lo.json been reshaped?`,
+        referenced[kind].length,
+        `no ${kind} refs found in the fixture manifest — has lo.json been reshaped?`,
       ).toBeGreaterThan(0);
       expect(
-        structures.flatMap((lo) => lo.present[kind]).length,
+        present[kind].length,
         `no ${kind} folders found on disk — has ${CONFIG_FILE_BY_KIND[kind]} been renamed?`,
       ).toBeGreaterThan(0);
     }

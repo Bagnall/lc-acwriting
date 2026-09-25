@@ -253,7 +253,19 @@ as far as the tree is concerned.
     │       └── modal/
     ├── sandbox/
     ├── showcase/
-    └── styles/
+    ├── styles/
+    └── test-fixtures/
+        └── lo-00-example/
+            ├── blocks/
+            │   ├── 00-intro/
+            │   ├── 01-grammar/
+            │   ├── 02-vocabulary/
+            │   └── 03-outcomes/
+            ├── exercises/
+            │   ├── 01-select/
+            │   └── 02-radio-quiz/
+            └── modals/
+                └── example-popup/
 ```
 
 <!-- docs:tree:end -->

@@ -50,7 +50,8 @@ bun run format && bun run lint && bun run lint:css && bun run test && bun run bu
 
 ## Content rules
 
-- **Add an LO by copying `lo-config/lo-00-example/`** to `lo-config/lo-NN-slug/`.
+- **Add an LO by copying `src/test-fixtures/lo-00-example/`** (the template example, kept
+  as a test fixture in this course) to `lo-config/lo-NN-slug/`.
   Never register it anywhere — a folder is a lesson. Zod must pass at load.
 - **Course order is the `lo-NN-` ordinal and nothing else**, sorted numerically.
   Do not add an order list; reorder by renaming folders.

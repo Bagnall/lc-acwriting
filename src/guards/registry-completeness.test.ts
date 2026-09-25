@@ -5,12 +5,15 @@
  * caught; the sweeps at the bottom then assert the real repo is clean. A guard whose
  * failure nobody has watched may simply be asleep.
  */
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { EXERCISE_TYPE_KEYS } from '@/config/exercise-types';
 import { EXERCISE_REGISTRY } from '@/exercises/lazyRegistry';
 import { BLOCK_RENDERERS } from '@/lo/blocks/block-renderers';
 import { SHOWCASE_FIXTURES } from '@/showcase/fixtures';
+import { EXAMPLE_LO_DIR } from '@/test-fixtures/example-lo';
+import { presentParts } from './render-mirror';
 import {
   CONTRACT_STEPS,
   authoredTypeRefs,
@@ -154,8 +157,23 @@ describe('the repo itself obeys guard e', () => {
     expect(registered.length).toBeGreaterThan(0);
     expect(fixtureTypes.length).toBeGreaterThan(0);
     expect(Object.keys(BLOCK_RENDERERS).length).toBeGreaterThan(0);
+    // This course authors no exercises, so the exercise floor reads the template's
+    // example LO, kept as a fixture (src/test-fixtures/example-lo.ts).
+    const fixtureExerciseTypes = presentParts(EXAMPLE_LO_DIR)
+      .exercises.filter((part) => part.hasConfig)
+      .map(
+        (part) =>
+          (
+            JSON.parse(
+              readFileSync(
+                path.join(EXAMPLE_LO_DIR, 'exercises', part.ref, 'exercise.json'),
+                'utf-8',
+              ),
+            ) as { type?: unknown }
+          ).type,
+      );
     expect(
-      authored.filter((ref) => ref.kind === 'exercise').length,
+      fixtureExerciseTypes.filter((type) => typeof type === 'string').length,
       'no exercise `type` found on disk — has exercise.json been reshaped?',
     ).toBeGreaterThan(0);
     expect(

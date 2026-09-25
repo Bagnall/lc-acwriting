@@ -7,11 +7,12 @@
  */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { test, expect } from 'vitest';
-import { loadLo } from './load-lo-disk';
+import { loadExampleLo } from '@/test-fixtures/example-lo';
 import { toPageSections } from './lo-page-sections';
 import { ModalProvider } from './rich-text/modal/ModalProvider';
 
-const lo = loadLo('lo-00-example');
+// The template's example LO, kept as a fixture: it is the one LO with every part kind.
+const lo = loadExampleLo();
 const sections = toPageSections(lo);
 
 /**

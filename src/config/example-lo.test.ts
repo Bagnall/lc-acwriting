@@ -1,5 +1,6 @@
 /**
- * example-lo.test.ts — validates the shipped example LO (`lo-config/lo-00-example`)
+ * example-lo.test.ts — validates the template's example LO (now the fixture
+ * `src/test-fixtures/lo-00-example`, since this course does not ship it)
  * end to end, on disk. This is the seed of Phase C guards b + e: it proves the
  * example an author copies from is internally consistent, independently of the
  * loader (`src/lo/`) that renders it.
@@ -31,9 +32,10 @@ import { z } from 'zod';
 import { LoManifestSchema, BlockConfigSchema, LoExerciseConfigSchema } from './lo-schema';
 import { SelectExerciseConfigSchema } from '@/exercises/select/select-schema';
 import { RadioQuizExerciseConfigSchema } from '@/exercises/radio-quiz/radio-quiz-schema';
+import { EXAMPLE_LO_DIR } from '@/test-fixtures/example-lo';
 
-/** The example LO folder, resolved from this test file (repo-root independent). */
-const LO_DIR = path.resolve(import.meta.dirname, '../../lo-config/lo-00-example');
+/** The example LO folder (a test fixture; see src/test-fixtures/example-lo.ts). */
+const LO_DIR = EXAMPLE_LO_DIR;
 
 /**
  * Per-`type` exercise schema lookup. Only the engines the example LO actually uses

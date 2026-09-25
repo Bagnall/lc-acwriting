@@ -61,11 +61,18 @@ export function loadLo(slug: string): AssembledLo {
     );
   }
 
-  const tree: LoFileTree = {
-    manifest: readJson(manifestPath),
+  return assembleLo(slug, readLoTree(loDir));
+}
+
+/**
+ * Read one LO folder into the tree `assembleLo` takes, from ANY directory. `loadLo`
+ * passes a folder under `lo-config/`; tests pass a fixture folder that never ships.
+ */
+export function readLoTree(loDir: string): LoFileTree {
+  return {
+    manifest: readJson(path.join(loDir, 'lo.json')),
     blocks: readParts(loDir, 'blocks'),
     exercises: readParts(loDir, 'exercises'),
     modals: readParts(loDir, 'modals'),
   };
-  return assembleLo(slug, tree);
 }
