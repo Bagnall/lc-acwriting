@@ -18,6 +18,7 @@
 import type { ComponentType } from 'react';
 import { OutcomesBlock } from './OutcomesBlock';
 import { ProseBlock, GrammarBlock, IntroBlock } from './TextBlock';
+import { VideoBlock } from './VideoBlock';
 import { VocabularyBlock } from './VocabularyBlock';
 
 /** Props every block renderer receives: the block's raw, type-specific `content`. */
@@ -34,6 +35,7 @@ export const BLOCK_RENDERERS: Readonly<Record<string, BlockRenderer>> = {
   grammar: GrammarBlock,
   vocabulary: VocabularyBlock,
   outcomes: OutcomesBlock,
+  video: VideoBlock,
 };
 
 /** Resolve a block renderer by type, or `undefined` if no such type ships. */

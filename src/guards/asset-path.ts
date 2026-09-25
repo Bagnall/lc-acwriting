@@ -84,7 +84,7 @@ const ASSET_EXTENSIONS = [
 ] as const;
 
 /** Directories under `public/` that hold authored assets. */
-const ASSET_DIR_PREFIXES = ['audio/', 'images/', 'img/', 'fonts/', 'icons/'] as const;
+const ASSET_DIR_PREFIXES = ['audio/', 'video/', 'images/', 'img/', 'fonts/', 'icons/'] as const;
 
 /** Directory names never worth walking. */
 const SKIPPED_DIRS = ['node_modules', 'dist', '.git'] as const;
