@@ -63,13 +63,16 @@ export function VideoBlock({ content }: { content: unknown }) {
 
         {quote === undefined ? null : (
           <figure className="border-s-4 border-accent ps-5">
-            <blockquote className="text-foreground italic">
-              <p>
-                <RichText nodes={quote.text} />
-              </p>
-            </blockquote>
-            <figcaption className="mt-2 text-sm text-muted-foreground">
-              — <RichText nodes={quote.source} />
+            {quote.text === undefined ? null : (
+              <blockquote className="mb-2 text-foreground italic">
+                <p>
+                  <RichText nodes={quote.text} />
+                </p>
+              </blockquote>
+            )}
+            {/* No dash or other decoration: the attribution is authored text, shown as written. */}
+            <figcaption className="text-sm text-muted-foreground">
+              <RichText nodes={quote.source} />
             </figcaption>
           </figure>
         )}

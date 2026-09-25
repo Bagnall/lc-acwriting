@@ -71,3 +71,11 @@ test('a quote renders as figure > blockquote + figcaption, with rich text', () =
   expect(html).toContain('<figcaption');
   expect(html).toContain('<em>The Craft of Research</em>');
 });
+
+test('an attribution without quote text renders the figcaption alone', () => {
+  const html = renderVideo({ ...valid, quote: { source: 'John B. Lord' } });
+
+  expect(html).toContain('<figcaption');
+  expect(html).toContain('John B. Lord');
+  expect(html).not.toContain('<blockquote');
+});

@@ -28,10 +28,15 @@ export const VideoSchema = z.object({
 export type VideoContent = z.infer<typeof VideoSchema>;
 
 export const QuoteSchema = z.object({
+  /**
+   * Omit when the quotation is drawn into the animation itself. The block then shows
+   * the attribution alone, and `video.label` must carry the quoted words.
+   */
   text: z
     .string()
     .min(1)
-    .transform((value) => parseRichText(value)),
+    .transform((value) => parseRichText(value))
+    .optional(),
   /** Who said it, and where. Rendered in the `<figcaption>`. */
   source: z
     .string()
