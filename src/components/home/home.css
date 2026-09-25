@@ -151,13 +151,11 @@
     display: block;
     padding: 0.5rem 1rem;
     border-top: 1px solid var(--border);
-    background-image: linear-gradient(
-      to right,
-      color-mix(in oklab, var(--card) 94%, transparent),
-      color-mix(in oklab, var(--card) 78%, transparent),
-      transparent
-    );
-    backdrop-filter: blur(3px);
+
+    /* Solid, not a fade into the image: text over an image or a translucent
+       gradient has no guaranteed contrast (WCAG 1.4.3), and the validate check
+       measured 3:1 here over a striped card image. */
+    background-color: var(--card);
   }
 
   .lo-card-blurb {
